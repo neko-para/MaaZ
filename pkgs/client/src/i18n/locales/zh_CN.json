@@ -1,0 +1,153 @@
+{
+  "device": {
+    "info": {
+      "title": "信息",
+      "adb_path": "ADB路径",
+      "target_address": "目标地址",
+      "touch": "点击",
+      "type": "配置",
+      "key": "按键",
+      "screencap": "截图"
+    },
+    "connect": {
+      "connect": "连接",
+      "connected": "已连接",
+      "title": "连接",
+      "disconnect": "断开"
+    },
+    "hint": {
+      "choose": "选择一个设备"
+    },
+    "side": {
+      "refresh": "刷新",
+      "connected": "已连接",
+      "disconnected": "未连接"
+    },
+    "type": {
+      "fastest_way": "最快",
+      "raw_by_netcat": "nc传输原始图像",
+      "raw_with_gzip": "管道传输gzip图像",
+      "encode": "管道传输png图像",
+      "encode_to_file": "文件传输png图像",
+      "minicap_direct": "单次minicap管道传输jpg图像",
+      "minicap_stream": "流式minicap管道传输jpg图像"
+    }
+  },
+  "setting": {
+    "maay": {
+      "locale": "语言"
+    },
+    "maaframework": {
+      "debug": "Maa调试",
+      "version": "Maa版本",
+      "service_address": "服务地址",
+      "cli_path": "MaaRpcCli路径"
+    },
+    "general": {
+      "version": "版本",
+      "load": "加载",
+      "unload": "卸载"
+    }
+  },
+  "resource": {
+    "side": {
+      "refresh": "刷新",
+      "import": "导入"
+    },
+    "import": {
+      "placeholder": {
+        "name": "<资源名称>"
+      },
+      "title": "导入资源",
+      "remote_repo": "远程仓库",
+      "local_dir": "本地目录"
+    },
+    "rename": {
+      "title": "重命名资源",
+      "placeholder": "<名称>"
+    },
+    "info": {
+      "title": "资源信息",
+      "path": "路径",
+      "type": "类型",
+      "external": "外部",
+      "internal": "内部",
+      "repo": "仓库",
+      "dir": "目录",
+      "desc": "描述",
+      "full_dep": "完整依赖",
+      "def_start_activity": "默认启动活动",
+      "def_stop_package": "默认关闭包",
+      "orientation": "方向",
+      "portrait": "竖屏",
+      "landscape": "横屏",
+      "size": "大小",
+      "short": "短边",
+      "long": "长边"
+    },
+    "respack": {
+      "title": "资源包信息",
+      "test": {
+        "success": "加载成功",
+        "fail": "加载失败",
+        "test": "测试",
+        "load": "加载",
+        "log": "日志",
+        "task_list": "任务列表"
+      }
+    },
+    "use": {
+      "title": "使用",
+      "new_inst": "创建实例",
+      "new_preset": "创建预设"
+    },
+    "hint": {
+      "choose": "选择一个资源"
+    }
+  },
+  "global": {
+    "confirm": "确认",
+    "unset": "未设置",
+    "name": "名称",
+    "respack": "资源包",
+    "device": "设备",
+    "add": "添加",
+    "start": "启动",
+    "stop": "停止",
+    "create": "创建"
+  },
+  "instance": {
+    "side": {
+      "instance": "实例",
+      "preset": "预设"
+    },
+    "info": {
+      "title": "信息"
+    },
+    "respack": {
+      "title": "资源"
+    },
+    "hint": {
+      "resource_load_failed": "资源加载失败",
+      "choose": "从资源页创建一个新实例"
+    },
+    "device": {
+      "title": "设备"
+    },
+    "task": {
+      "title": "任务",
+      "global_config": "全局配置",
+      "hint": {
+        "entry": "选择一个启动入口"
+      },
+      "task": "任务"
+    },
+    "run": {
+      "title": "执行",
+      "entry": "入口"
+    }
+  },
+  "welcome": {
+    "guide_panel": "通过右上角的按钮切换页面，从左到右分别是 实例 资源 设备 设置。"
+  }
+}

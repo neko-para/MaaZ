@@ -1,0 +1,153 @@
+{
+  "device": {
+    "info": {
+      "title": "information",
+      "adb_path": "ADB path",
+      "target_address": "target address",
+      "touch": "touch",
+      "type": "config",
+      "key": "key",
+      "screencap": "screencap"
+    },
+    "connect": {
+      "connect": "connect",
+      "connected": "connected",
+      "title": "connect",
+      "disconnect": "disconnect"
+    },
+    "hint": {
+      "choose": "choose a device"
+    },
+    "side": {
+      "connected": "connected",
+      "refresh": "refresh",
+      "disconnected": "disconnected"
+    },
+    "type": {
+      "fastest_way": "fastest way",
+      "raw_by_netcat": "raw image via netcat",
+      "raw_with_gzip": "gziped raw image via pipe",
+      "encode": "png image via pipe",
+      "encode_to_file": "png image via file",
+      "minicap_direct": "jpg image via pipe by instant minicap",
+      "minicap_stream": "jpg image via pipe by stream minicap"
+    }
+  },
+  "setting": {
+    "maay": {
+      "locale": "locale"
+    },
+    "maaframework": {
+      "debug": "Maa debug",
+      "version": "Maa version",
+      "service_address": "service address",
+      "cli_path": "path of MaaRpcCli"
+    },
+    "general": {
+      "version": "Maa version",
+      "load": "load",
+      "unload": "unload"
+    }
+  },
+  "resource": {
+    "side": {
+      "refresh": "refresh",
+      "import": "import"
+    },
+    "import": {
+      "placeholder": {
+        "name": "<resource name>"
+      },
+      "title": "import resource",
+      "remote_repo": "remote repository",
+      "local_dir": "local directory"
+    },
+    "rename": {
+      "title": "rename resource",
+      "placeholder": "<name>"
+    },
+    "info": {
+      "title": "resource information",
+      "path": "path",
+      "type": "type",
+      "external": "external",
+      "internal": "internal",
+      "repo": "repository",
+      "dir": "directory",
+      "desc": "description",
+      "full_dep": "full dependencies",
+      "def_start_activity": "default start activity",
+      "def_stop_package": "default stop package",
+      "orientation": "orientation",
+      "portrait": "portrait",
+      "landscape": "landscape",
+      "size": "side",
+      "short": "short side",
+      "long": "long side"
+    },
+    "respack": {
+      "title": "resource pack information",
+      "test": {
+        "success": "load success",
+        "fail": "load failed",
+        "test": "test",
+        "load": "load",
+        "log": "log",
+        "task_list": ""
+      }
+    },
+    "use": {
+      "title": "use",
+      "new_inst": "create instance",
+      "new_preset": "create preset"
+    },
+    "hint": {
+      "choose": "choose a resource"
+    }
+  },
+  "global": {
+    "confirm": "confirm",
+    "unset": "unset",
+    "name": "name",
+    "respack": "resource pack",
+    "device": "device",
+    "add": "add",
+    "start": "start",
+    "stop": "stop",
+    "create": "create"
+  },
+  "instance": {
+    "side": {
+      "instance": "instance",
+      "preset": "preset"
+    },
+    "info": {
+      "title": "info"
+    },
+    "respack": {
+      "title": "resource"
+    },
+    "hint": {
+      "resource_load_failed": "resource load failed",
+      "choose": "create an instance from the resource page"
+    },
+    "device": {
+      "title": "device"
+    },
+    "task": {
+      "title": "task",
+      "global_config": "global config",
+      "hint": {
+        "entry": "select a startup entry"
+      },
+      "task": "task"
+    },
+    "run": {
+      "title": "run",
+      "entry": "entry"
+    }
+  },
+  "welcome": {
+    "guide_panel": "change the panels via buttons on the right-top corner. panels from left to right are Instance, Resource, Device and Setting."
+  }
+}
