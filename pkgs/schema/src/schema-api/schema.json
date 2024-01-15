@@ -8611,7 +8611,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{data:{[key:string]:string;};},{error:string;}>"
+                                  "$ref": "#/definitions/Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>"
                                 },
                                 {
                                   "type": "object",
@@ -8627,7 +8627,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:string;};}>"
+                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>"
                                 },
                                 {
                                   "type": "object",
@@ -8635,7 +8635,13 @@
                                     "data": {
                                       "type": "object",
                                       "additionalProperties": {
-                                        "type": "string"
+                                        "type": "object",
+                                        "properties": {
+                                          "pointer": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": ["pointer"]
                                       }
                                     }
                                   },
@@ -8693,7 +8699,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{data:{[key:string]:string;};},{error:string;}>_1"
+                                  "$ref": "#/definitions/Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>_1"
                                 },
                                 {
                                   "type": "object",
@@ -8709,7 +8715,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:string;};}>_1"
+                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>_1"
                                 },
                                 {
                                   "type": "object",
@@ -8717,7 +8723,13 @@
                                     "data": {
                                       "type": "object",
                                       "additionalProperties": {
-                                        "type": "string"
+                                        "type": "object",
+                                        "properties": {
+                                          "pointer": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": ["pointer"]
                                       }
                                     }
                                   },
@@ -8775,7 +8787,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{data:{[key:string]:string;};},{error:string;}>_2"
+                                  "$ref": "#/definitions/Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>_2"
                                 },
                                 {
                                   "type": "object",
@@ -8791,7 +8803,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:string;};}>_2"
+                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>_2"
                                 },
                                 {
                                   "type": "object",
@@ -8799,7 +8811,13 @@
                                     "data": {
                                       "type": "object",
                                       "additionalProperties": {
-                                        "type": "string"
+                                        "type": "object",
+                                        "properties": {
+                                          "pointer": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": ["pointer"]
                                       }
                                     }
                                   },
@@ -8857,7 +8875,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{data:{[key:string]:string;};},{error:string;}>_3"
+                                  "$ref": "#/definitions/Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>_3"
                                 },
                                 {
                                   "type": "object",
@@ -8873,7 +8891,7 @@
                             {
                               "allOf": [
                                 {
-                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:string;};}>_3"
+                                  "$ref": "#/definitions/Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>_3"
                                 },
                                 {
                                   "type": "object",
@@ -8881,7 +8899,13 @@
                                     "data": {
                                       "type": "object",
                                       "additionalProperties": {
-                                        "type": "string"
+                                        "type": "object",
+                                        "properties": {
+                                          "pointer": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": ["pointer"]
                                       }
                                     }
                                   },
@@ -9724,35 +9748,35 @@
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{data:{[key:string]:string;};},{error:string;}>": {
+    "Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>": {
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{error:string;},{data:{[key:string]:string;};}>": {
+    "Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>": {
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{data:{[key:string]:string;};},{error:string;}>_1": {
+    "Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>_1": {
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{error:string;},{data:{[key:string]:string;};}>_1": {
+    "Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>_1": {
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{data:{[key:string]:string;};},{error:string;}>_2": {
+    "Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>_2": {
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{error:string;},{data:{[key:string]:string;};}>_2": {
+    "Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>_2": {
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{data:{[key:string]:string;};},{error:string;}>_3": {
+    "Without<{data:{[key:string]:{pointer:string;};};},{error:string;}>_3": {
       "description": "OneOf type helpers",
       "type": "object"
     },
-    "Without<{error:string;},{data:{[key:string]:string;};}>_3": {
+    "Without<{error:string;},{data:{[key:string]:{pointer:string;};};}>_3": {
       "description": "OneOf type helpers",
       "type": "object"
     }

@@ -1,0 +1,6 @@
+{
+  "i18n-ally.localesPaths": [
+    "pkgs/client/src/i18n",
+    "pkgs/client/src/i18n/locales"
+  ]
+}

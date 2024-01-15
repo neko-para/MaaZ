@@ -1,23 +1,49 @@
 <script setup lang="ts">
-import { api } from '@maaz/schema'
 import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import {
+  VApp,
+  VAppBar,
+  VAppBarNavIcon,
+  VBtn,
+  VList,
+  VListItem,
+  VMain,
+  VNavigationDrawer,
+  VSpacer,
+  VToolbarTitle
+} from 'vuetify/components'
 
-const version = ref('N/A')
+import { service } from '@/stores/service'
 
-api
-  .MaaVersion()
-  .then(({ return: ver }) => {
-    version.value = ver
-  })
-  .catch(err => {
-    console.error(err)
-  })
+const { connect, disconnect, version } = service
+
+const drawer = ref(false)
+
+onMounted(() => {
+  connect()
+})
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <span>111</span>
-    <span>222</span>
-    <span>333</span>
-  </div>
+  <v-app>
+    <v-app-bar order="1">
+      <v-app-bar-nav-icon icon="mdi-menu" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>maa-z</v-toolbar-title>
+      <v-spacer></v-spacer>
+
+      <v-btn v-if="version" @click="disconnect"> 已连接 - {{ version }} </v-btn>
+      <v-btn v-else @click="connect"> 未连接 </v-btn>
+    </v-app-bar>
+    <v-navigation-drawer v-model="drawer">
+      <v-list>
+        <v-list-item link to="/debug/callback" title="Debug callback"></v-list-item>
+        <v-list-item link to="/debug/resource" title="Debug resource"></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+    <v-main>
+      <router-view></router-view>
+    </v-main>
+  </v-app>
 </template>

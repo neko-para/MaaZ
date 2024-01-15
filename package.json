@@ -1,7 +1,9 @@
 {
   "name": "maa-z",
   "version": "1.0.0",
-  "scripts": {},
+  "scripts": {
+    "dev": "cd pkgs/client && npx vite dev"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",

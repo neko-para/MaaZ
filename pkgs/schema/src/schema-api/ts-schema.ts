@@ -2757,7 +2757,9 @@ export interface paths {
               [
                 {
                   data: {
-                    [key: string]: string
+                    [key: string]: {
+                      pointer: string
+                    }
                   }
                 },
                 {
@@ -2784,7 +2786,9 @@ export interface paths {
               [
                 {
                   data: {
-                    [key: string]: string
+                    [key: string]: {
+                      pointer: string
+                    }
                   }
                 },
                 {
@@ -2811,7 +2815,9 @@ export interface paths {
               [
                 {
                   data: {
-                    [key: string]: string
+                    [key: string]: {
+                      pointer: string
+                    }
                   }
                 },
                 {
@@ -2838,7 +2844,9 @@ export interface paths {
               [
                 {
                   data: {
-                    [key: string]: string
+                    [key: string]: {
+                      pointer: string
+                    }
                   }
                 },
                 {

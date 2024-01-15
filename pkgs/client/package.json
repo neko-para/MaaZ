@@ -1,21 +1,22 @@
 {
   "name": "@maaz/client",
   "devDependencies": {
-    "@maaz/schema": "workspace:*",
     "@intlify/unplugin-vue-i18n": "^2.0.0",
+    "@maaz/schema": "workspace:*",
+    "@mdi/font": "^7.4.47",
     "@types/node": "^20.11.0",
     "@vitejs/plugin-vue": "^5.0.3",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "^10.4.16",
-    "naive-ui": "^2.37.3",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
-    "vfonts": "^0.0.3",
     "vite": "^5.0.11",
+    "vite-plugin-vuetify": "^2.0.1",
     "vue": "^3.4.13",
     "vue-i18n": "^9.9.0",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vuetify": "^3.4.10"
   }
 }

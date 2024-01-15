@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-#app {
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
+:root {
+  --v-theme-overlay-multiplier: 1;
 }
