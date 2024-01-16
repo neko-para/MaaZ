@@ -44,6 +44,10 @@ function useDocker() {
     cards.value = cards.value.filter(x => x.id !== id)
   }
 
+  const moveup = (id: string) => {
+    cards.value = [...cards.value.filter(x => x.id === id), ...cards.value.filter(x => x.id !== id)]
+  }
+
   const onShow = (f: () => void) => {
     show = f
   }
@@ -54,6 +58,7 @@ function useDocker() {
     init,
     add,
     del,
+    moveup,
     onShow
   }
 }

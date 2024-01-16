@@ -36,8 +36,8 @@ const info = computed(() => {
 </script>
 
 <template>
-  <debug-docker-card>
-    <template #title> Callback - {{ id }} </template>
+  <debug-docker-card :id="id">
+    <template #title> 回调 - {{ id }} </template>
     <template #close> <slot name="close"> </slot> </template>
 
     <v-data-table :headers="headers" :items="info.log">

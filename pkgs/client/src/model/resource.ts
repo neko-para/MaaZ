@@ -2,6 +2,8 @@ import { $resource, type APICallbackId, type ResourceId, Status } from '@maaz/ma
 import { api, opaque } from '@maaz/schema'
 import { reactive, watch } from 'vue'
 
+import { dockerDelComponent } from '@/components/debug/utils'
+
 import { handle } from './handle'
 
 export interface MaaResourceInfo {
@@ -50,6 +52,7 @@ function useResource() {
   }
 
   const destroy = async (id: ResourceId) => {
+    dockerDelComponent(id)
     delete handle.getCallback(resources[id].cbid).used[id]
     delete resources[id]
     await $resource.destroy(id)
@@ -59,12 +62,6 @@ function useResource() {
     await $resource.destroy(id)
   }
 
-  const postPath = async (id: ResourceId, path: string) => {
-    const act_id = await $resource.postPath(id, path)
-    const status = await $resource.wait(id, act_id)
-    return status === Status.Success
-  }
-
   return {
     resources,
 
@@ -72,8 +69,7 @@ function useResource() {
     dump,
     create,
     destroy,
-    destroyDirect,
-    postPath
+    destroyDirect
   }
 }
 

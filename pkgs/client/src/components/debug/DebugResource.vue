@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { APICallbackId, ResourceId } from '@maaz/maa'
 import { computed, onMounted, ref } from 'vue'
+import { onUnmounted } from 'vue'
 import { VBtn, VCard, VDataTable } from 'vuetify/components'
 
 import { handle } from '@/model/handle'
@@ -10,8 +11,7 @@ import DebugCallback from './DebugCallback.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
 import DebugResourceDetail from './DebugResourceDetail.vue'
 import DebugSelect from './DebugSelect.vue'
-import DebugSelectCallback from './DebugSelectCallback.vue'
-import { dockerAddComponent } from './utils'
+import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
 const props = withDefaults(
   defineProps<{
@@ -51,9 +51,9 @@ const items = ref<
   }[]
 >([])
 
-const selectCallbackEl = ref<InstanceType<typeof DebugSelectCallback> | null>(null)
+const selectCallbackEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 
-async function update() {
+async function realUpdate() {
   loading.value += 1
   const res: {
     id: ResourceId
@@ -71,6 +71,10 @@ async function update() {
   }
   items.value = res
   loading.value -= 1
+}
+
+function update() {
+  return triggerUpdate('resource')
 }
 
 async function add(id: APICallbackId) {
@@ -99,7 +103,12 @@ function detail(id: ResourceId) {
 }
 
 onMounted(() => {
+  registerUpdate('resource', realUpdate)
   update()
+})
+
+onUnmounted(() => {
+  unregisterUpdate('resource', realUpdate)
 })
 </script>
 
@@ -116,7 +125,7 @@ onMounted(() => {
     ></debug-callback>
   </debug-select>
 
-  <debug-docker-card class="bg-blue-200">
+  <debug-docker-card id="#resource" :closable="false" class="bg-blue-200">
     <template #title> 资源列表 </template>
 
     <div class="flex gap-2">

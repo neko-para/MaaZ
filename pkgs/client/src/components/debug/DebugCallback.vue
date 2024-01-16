@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { APICallbackId } from '@maaz/maa'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { VBtn, VCard, VDataTable } from 'vuetify/components'
 
 import { callback } from '@/model/callback'
@@ -8,7 +8,7 @@ import { handle } from '@/model/handle'
 
 import DebugCallbackDetail from './DebugCallbackDetail.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
-import { dockerAddComponent } from './utils'
+import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
 const props = withDefaults(
   defineProps<{
@@ -45,7 +45,7 @@ const items = ref<
   }[]
 >([])
 
-async function update() {
+async function realUpdate() {
   loading.value += 1
   const res: {
     id: APICallbackId
@@ -60,6 +60,10 @@ async function update() {
   }
   items.value = res
   loading.value -= 1
+}
+
+function update() {
+  return triggerUpdate('callback')
 }
 
 async function add() {
@@ -99,12 +103,17 @@ function detail(id: APICallbackId) {
 }
 
 onMounted(() => {
+  registerUpdate('callback', realUpdate)
   update()
+})
+
+onUnmounted(() => {
+  unregisterUpdate('callback', realUpdate)
 })
 </script>
 
 <template>
-  <debug-docker-card class="bg-blue-200">
+  <debug-docker-card id="#callback" :closable="false" class="bg-blue-200">
     <template #title> 回调列表 </template>
 
     <div class="flex gap-2">

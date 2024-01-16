@@ -1,5 +1,22 @@
 <script setup lang="ts">
-import { VCard, VSpacer } from 'vuetify/components'
+import { VBtn, VCard, VSpacer } from 'vuetify/components'
+
+import { docker } from './docker'
+
+withDefaults(
+  defineProps<{
+    id: string
+    closable?: boolean
+  }>(),
+  {
+    closable: true
+  }
+)
+
+const emits = defineEmits<{
+  close: []
+  moveup: []
+}>()
 </script>
 
 <template>
@@ -9,7 +26,14 @@ import { VCard, VSpacer } from 'vuetify/components'
         <slot name="title"></slot>
       </span>
       <v-spacer></v-spacer>
-      <slot name="close"></slot>
+      <v-btn variant="text" icon="mdi-arrow-up" size="small" @click="docker.moveup(id)"></v-btn>
+      <v-btn
+        v-if="closable"
+        variant="text"
+        icon="mdi-close"
+        size="small"
+        @click="docker.del(id)"
+      ></v-btn>
     </div>
 
     <slot></slot>

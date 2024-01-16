@@ -1,6 +1,9 @@
 import { $callback, type APICallback, type APICallbackId } from '@maaz/maa'
 import { reactive, watch } from 'vue'
 
+import { docker } from '@/components/debug/docker'
+import { dockerDelComponent } from '@/components/debug/utils'
+
 export interface MaaCallbackInfo {
   type: 'callback'
   used: Record<string, true>
@@ -61,6 +64,8 @@ function useCallback() {
   }
 
   const del = async (id: APICallbackId) => {
+    dockerDelComponent(id)
+    callbacks[id].state.running = false
     delete callbacks[id]
     await $callback.del(id)
   }
@@ -83,6 +88,9 @@ function useCallback() {
     const pull = async () => {
       info.state.pulling = true
       const ids = await $callback.pull(id)
+      if (!info.state.running) {
+        return
+      }
       await Promise.all(
         ids.map(async cid => {
           await $callback.process(id, cid, async (msg, details_json) => {
