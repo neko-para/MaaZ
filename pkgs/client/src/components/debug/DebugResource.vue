@@ -6,7 +6,10 @@ import { VBtn, VCard, VDataTable } from 'vuetify/components'
 import { handle } from '@/model/handle'
 import { resource } from '@/model/resource'
 
+import DebugCallback from './DebugCallback.vue'
+import DebugDockerCard from './DebugDockerCard.vue'
 import DebugResourceDetail from './DebugResourceDetail.vue'
+import DebugSelect from './DebugSelect.vue'
 import DebugSelectCallback from './DebugSelectCallback.vue'
 import { dockerAddComponent } from './utils'
 
@@ -101,15 +104,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <debug-select-callback ref="selectCallbackEl" @selected="add"></debug-select-callback>
+  <debug-select
+    ref="selectCallbackEl"
+    v-slot="{ value, setValue }"
+    @selected="id => add(id as APICallbackId)"
+  >
+    <debug-callback
+      select-mode
+      :callback="value as APICallbackId | null"
+      @update:callback="setValue"
+    ></debug-callback>
+  </debug-select>
 
-  <v-card class="flex flex-col gap-2 p-2">
-    <span class="text-lg font-bold"> MaaResource </span>
+  <debug-docker-card class="bg-blue-200">
+    <template #title> 资源列表 </template>
+
     <div class="flex gap-2">
-      <v-btn text="刷新" append-icon="mdi-refresh" @click="update"></v-btn>
-      <v-btn text="添加" append-icon="mdi-plus" @click="selectCallbackEl?.trigger()"></v-btn>
+      <v-btn text="刷新" @click="update"></v-btn>
+      <v-btn text="添加" @click="selectCallbackEl?.trigger()"></v-btn>
     </div>
     <v-data-table
+      class="bg-white bg-opacity-50"
       :headers="headers"
       :loading="loading > 0"
       :items="items"
@@ -147,5 +162,5 @@ onMounted(() => {
         </template>
       </template>
     </v-data-table>
-  </v-card>
+  </debug-docker-card>
 </template>

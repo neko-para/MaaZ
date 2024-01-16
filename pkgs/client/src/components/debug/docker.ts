@@ -1,5 +1,8 @@
 import { type Component, type ComputedRef, ref, shallowRef } from 'vue'
 
+import DebugCallback from '@/components/debug/DebugCallback.vue'
+import DebugResource from '@/components/debug/DebugResource.vue'
+
 interface CardInfo {
   id: string
   component: Component
@@ -9,6 +12,19 @@ interface CardInfo {
 function useDocker() {
   const cards = ref<CardInfo[]>([])
   let show = () => {}
+
+  const init = () => {
+    add({
+      id: '#callback',
+      component: DebugCallback,
+      props: {}
+    })
+    add({
+      id: '#resource',
+      component: DebugResource,
+      props: {}
+    })
+  }
 
   const add = (info: CardInfo) => {
     const exist = !!cards.value.find(x => x.id === info.id)
@@ -35,6 +51,7 @@ function useDocker() {
   return {
     cards,
 
+    init,
     add,
     del,
     onShow

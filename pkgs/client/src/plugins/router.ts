@@ -1,16 +1,15 @@
 import { type RouteRecordRaw, createRouter, createWebHashHistory } from 'vue-router'
 
-import DebugCallbackPage from '@/views/debug/DebugCallbackPage.vue'
-import DebugResourcePage from '@/views/debug/DebugResourcePage.vue'
+import DebugDocker from '@/components/debug/DebugDocker.vue'
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/debug/callback',
-    component: DebugCallbackPage
+    path: '/',
+    redirect: '/debug'
   },
   {
-    path: '/debug/resource',
-    component: DebugResourcePage
+    path: '/debug',
+    component: DebugDocker
   }
 ]
 

@@ -1,7 +1,7 @@
 import { type Component, watch } from 'vue'
 
+import { docker } from '@/components/debug/docker'
 import { handle } from '@/model/handle'
-import { docker } from '@/stores/docker'
 
 export function dockerAddComponent(id: string, component: Component) {
   if (

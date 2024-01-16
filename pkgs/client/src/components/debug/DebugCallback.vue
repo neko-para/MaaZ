@@ -7,20 +7,22 @@ import { callback } from '@/model/callback'
 import { handle } from '@/model/handle'
 
 import DebugCallbackDetail from './DebugCallbackDetail.vue'
+import DebugDockerCard from './DebugDockerCard.vue'
 import { dockerAddComponent } from './utils'
 
 const props = withDefaults(
   defineProps<{
     selectMode?: boolean
-    callback?: APICallbackId
+    callback?: APICallbackId | null
   }>(),
   {
-    selectMode: false
+    selectMode: false,
+    callback: null
   }
 )
 
 const emits = defineEmits<{
-  'update:callback': [APICallbackId | undefined]
+  'update:callback': [APICallbackId | null]
 }>()
 
 const headers = computed(() => {
@@ -54,7 +56,7 @@ async function update() {
     })
   }
   if (props.selectMode && props.callback && !(props.callback in res)) {
-    emits('update:callback', undefined)
+    emits('update:callback', null)
   }
   items.value = res
   loading.value -= 1
@@ -102,13 +104,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-card class="flex flex-col gap-2 p-2">
-    <span class="text-lg font-bold"> APICallbackId </span>
+  <debug-docker-card class="bg-blue-200">
+    <template #title> 回调列表 </template>
+
     <div class="flex gap-2">
-      <v-btn text="刷新" append-icon="mdi-refresh" @click="update"></v-btn>
-      <v-btn text="添加" append-icon="mdi-plus" @click="add"></v-btn>
+      <v-btn text="刷新" @click="update"></v-btn>
+      <v-btn text="添加" @click="add"></v-btn>
     </div>
     <v-data-table
+      class="bg-white bg-opacity-50"
       :headers="headers"
       :loading="loading > 0"
       :items="items"
@@ -117,7 +121,7 @@ onMounted(() => {
       :model-value="props.callback ? [props.callback] : ([] as APICallbackId[])"
       @update:model-value="
         v => {
-          emits('update:callback', v.length > 0 ? v[0] : undefined)
+          emits('update:callback', v.length > 0 ? v[0] : null)
         }
       "
     >
@@ -165,5 +169,5 @@ onMounted(() => {
         </template>
       </template>
     </v-data-table>
-  </v-card>
+  </debug-docker-card>
 </template>

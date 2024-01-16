@@ -5,6 +5,8 @@ import { VCard, VDataTable, VSpacer } from 'vuetify/components'
 
 import { handle } from '@/model/handle'
 
+import DebugDockerCard from './DebugDockerCard.vue'
+
 const props = defineProps<{
   id: APICallbackId
 }>()
@@ -34,12 +36,10 @@ const info = computed(() => {
 </script>
 
 <template>
-  <v-card class="flex flex-col gap-2 p-2" :elevation="5">
-    <div class="flex items-center">
-      <span class="font-bold text-lg"> Callback - {{ id }} </span>
-      <v-spacer></v-spacer>
-      <slot name="close"></slot>
-    </div>
+  <debug-docker-card>
+    <template #title> Callback - {{ id }} </template>
+    <template #close> <slot name="close"> </slot> </template>
+
     <v-data-table :headers="headers" :items="info.log">
       <template v-slot:item.arg_msg="{ value }">
         <span> {{ value.msg }} </span>
@@ -48,5 +48,5 @@ const info = computed(() => {
         <span> {{ value.detail }} </span>
       </template>
     </v-data-table>
-  </v-card>
+  </debug-docker-card>
 </template>

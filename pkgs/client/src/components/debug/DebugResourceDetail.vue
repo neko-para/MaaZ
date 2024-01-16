@@ -8,6 +8,7 @@ import DebugCallbackDetail from '@/components/debug/DebugCallbackDetail.vue'
 import { handle } from '@/model/handle'
 import { resource } from '@/model/resource'
 
+import DebugDockerCard from './DebugDockerCard.vue'
 import { dockerAddComponent } from './utils'
 
 const props = defineProps<{
@@ -57,17 +58,15 @@ function openCallback() {
     </v-card>
   </v-dialog>
 
-  <v-card class="flex flex-col gap-2 p-2" :elevation="5">
-    <div class="flex items-center">
-      <span class="font-bold text-lg"> Resource - {{ id }} </span>
-      <v-spacer></v-spacer>
-      <slot name="close"></slot>
-    </div>
+  <debug-docker-card>
+    <template #title> 资源 - {{ id }} </template>
+    <template #close> <slot name="close"> </slot> </template>
+
     <div class="flex flex-col gap-2">
       <div class="flex gap-2">
         <v-btn text="加载" @click="load"></v-btn>
         <v-btn text="回调" @click="openCallback"></v-btn>
       </div>
     </div>
-  </v-card>
+  </debug-docker-card>
 </template>
