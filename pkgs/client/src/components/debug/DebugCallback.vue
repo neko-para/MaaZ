@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import type { APICallbackId } from '@maaz/maa'
+import { computed, onMounted, ref } from 'vue'
 import { VBtn, VCard, VDataTable } from 'vuetify/components'
 
-import { type MaaAPICallback, callback } from '@/model/callback'
+import { callback } from '@/model/callback'
 import { handle } from '@/model/handle'
-import { docker } from '@/stores/docker'
 
 import DebugCallbackDetail from './DebugCallbackDetail.vue'
 import { dockerAddComponent } from './utils'
@@ -12,7 +12,7 @@ import { dockerAddComponent } from './utils'
 const props = withDefaults(
   defineProps<{
     selectMode?: boolean
-    callback?: MaaAPICallback
+    callback?: APICallbackId
   }>(),
   {
     selectMode: false
@@ -20,7 +20,7 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-  'update:callback': [MaaAPICallback | undefined]
+  'update:callback': [APICallbackId | undefined]
 }>()
 
 const headers = computed(() => {
@@ -39,18 +39,18 @@ const headers = computed(() => {
 const loading = ref(0)
 const items = ref<
   {
-    id: MaaAPICallback
+    id: APICallbackId
   }[]
 >([])
 
 async function update() {
   loading.value += 1
   const res: {
-    id: MaaAPICallback
+    id: APICallbackId
   }[] = []
   for (const id of await callback.dump()) {
     res.push({
-      id: id as MaaAPICallback
+      id: id as APICallbackId
     })
   }
   if (props.selectMode && props.callback && !(props.callback in res)) {
@@ -68,31 +68,31 @@ async function add() {
   loading.value -= 1
 }
 
-async function remove(id: MaaAPICallback) {
+async function remove(id: APICallbackId) {
   loading.value += 1
   await callback.del(id)
   await update()
   loading.value -= 1
 }
 
-async function removeDirect(id: MaaAPICallback) {
+async function removeDirect(id: APICallbackId) {
   loading.value += 1
   await callback.delDirect(id)
   await update()
   loading.value -= 1
 }
 
-function listen(id: MaaAPICallback) {
+function listen(id: APICallbackId) {
   callback.listen(id, async (msg, detail) => {
     console.log(msg, detail)
   })
 }
 
-function stop(id: MaaAPICallback) {
+function stop(id: APICallbackId) {
   callback.stop(id)
 }
 
-function detail(id: MaaAPICallback) {
+function detail(id: APICallbackId) {
   dockerAddComponent(id, DebugCallbackDetail)
 }
 
@@ -103,7 +103,7 @@ onMounted(() => {
 
 <template>
   <v-card class="flex flex-col gap-2 p-2">
-    <span class="text-lg font-bold"> MaaAPICallback </span>
+    <span class="text-lg font-bold"> APICallbackId </span>
     <div class="flex gap-2">
       <v-btn text="刷新" append-icon="mdi-refresh" @click="update"></v-btn>
       <v-btn text="添加" append-icon="mdi-plus" @click="add"></v-btn>
@@ -114,7 +114,7 @@ onMounted(() => {
       :items="items"
       :show-select="selectMode"
       select-strategy="single"
-      :model-value="props.callback ? [props.callback] : ([] as MaaAPICallback[])"
+      :model-value="props.callback ? [props.callback] : ([] as APICallbackId[])"
       @update:model-value="
         v => {
           emits('update:callback', v.length > 0 ? v[0] : undefined)
@@ -134,7 +134,7 @@ onMounted(() => {
             @click="detail(item.id)"
           ></v-btn>
           <v-btn
-            v-if="handle.getCallback(item.id).state.pulling"
+            v-if="handle.getCallback(item.id).state.running"
             variant="text"
             icon="mdi-sync"
             size="small"

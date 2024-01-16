@@ -1,18 +1,16 @@
+import { $resource, type APICallbackId, type ResourceId, Status } from '@maaz/maa'
 import { api, opaque } from '@maaz/schema'
 import { reactive, watch } from 'vue'
 
-import type { MaaAPICallback } from './callback'
 import { handle } from './handle'
-
-export type MaaResourceAPI = string & { __kind: 'MaaResourceAPI' }
 
 export interface MaaResourceInfo {
   type: 'resource'
-  cbid: MaaAPICallback
+  cbid: APICallbackId
 }
 
 function useResource() {
-  const resources = reactive<Record<MaaResourceAPI, MaaResourceInfo>>({})
+  const resources = reactive<Record<ResourceId, MaaResourceInfo>>({})
 
   watch(
     resources,
@@ -25,24 +23,24 @@ function useResource() {
   )
 
   const reinit = async () => {
-    const handles = await opaque.MaaResourceAPI()
-    const storedInfo: Record<MaaResourceAPI, MaaResourceInfo> = JSON.parse(
+    const handles = await $resource.dump()
+    const storedInfo: Record<ResourceId, MaaResourceInfo> = JSON.parse(
       localStorage.getItem('resource') ?? '{}'
     )
     for (const key in storedInfo) {
-      const k = key as MaaResourceAPI
+      const k = key as ResourceId
       if (k in handles) {
         resources[k] = storedInfo[k]
       }
     }
   }
 
-  const dump = () => {
-    return opaque.MaaResourceAPI()
+  const dump = async () => {
+    return await $resource.dump()
   }
 
-  const create = async (cbid: MaaAPICallback) => {
-    const id = (await api.MaaResourceCreate({ callback: cbid })).return as MaaResourceAPI
+  const create = async (cbid: APICallbackId) => {
+    const id = await $resource.create(cbid)
     handle.getCallback(cbid).used[id] = true
     resources[id] = {
       type: 'resource',
@@ -51,24 +49,20 @@ function useResource() {
     return id
   }
 
-  const destroy = async (id: MaaResourceAPI) => {
+  const destroy = async (id: ResourceId) => {
     delete handle.getCallback(resources[id].cbid).used[id]
     delete resources[id]
-    await api.MaaResourceDestroy({ res: id })
+    await $resource.destroy(id)
   }
 
-  const destroyDirect = async (id: MaaResourceAPI) => {
-    await api.MaaResourceDestroy({ res: id })
+  const destroyDirect = async (id: ResourceId) => {
+    await $resource.destroy(id)
   }
 
-  const postPath = async (id: MaaResourceAPI, path: string) => {
-    const act_id = (await api.MaaResourcePostPath({ path, res: id })).return
-    const ret = await api.MaaResourceWait({
-      id: act_id,
-      res: id
-    })
-    console.log(ret)
-    return ret
+  const postPath = async (id: ResourceId, path: string) => {
+    const act_id = await $resource.postPath(id, path)
+    const status = await $resource.wait(id, act_id)
+    return status === Status.Success
   }
 
   return {

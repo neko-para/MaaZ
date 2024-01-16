@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import type { ResourceId } from '@maaz/maa'
 import { ref } from 'vue'
 import { computed } from 'vue'
 import { VBtn, VCard, VDialog, VSpacer, VTextField } from 'vuetify/components'
 
 import DebugCallbackDetail from '@/components/debug/DebugCallbackDetail.vue'
 import { handle } from '@/model/handle'
-import { type MaaResourceAPI, resource } from '@/model/resource'
+import { resource } from '@/model/resource'
 
 import { dockerAddComponent } from './utils'
 
 const props = defineProps<{
-  id: MaaResourceAPI
+  id: ResourceId
 }>()
 
 const info = computed(() => {

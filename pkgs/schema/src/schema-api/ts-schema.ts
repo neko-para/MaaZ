@@ -335,7 +335,6 @@ export interface paths {
       requestBody?: {
         content: {
           'application/json': {
-            buffer: string
             /** MaaControllerAPI */
             ctrl: string
           }
@@ -1332,7 +1331,6 @@ export interface paths {
       requestBody?: {
         content: {
           'application/json': {
-            buffer: string
             /** MaaResourceAPI */
             res: string
           }
@@ -1364,7 +1362,6 @@ export interface paths {
       requestBody?: {
         content: {
           'application/json': {
-            buffer: string
             /** MaaResourceAPI */
             res: string
           }

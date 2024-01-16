@@ -1,6 +1,9 @@
 {
   "name": "@maaz/schema",
   "main": "src/index.ts",
+  "scripts": {
+    "update": "openapi-gen-ts"
+  },
   "devDependencies": {
     "@liangskyli/openapi-gen-ts": "^1.3.0",
     "@tsconfig/node20": "^20.1.2",

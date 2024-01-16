@@ -5,16 +5,16 @@ const cb = _callback.MaaAPICallback
 export type APICallbackId = string & { __kind: 'MaaAPICallback' }
 export type APICallback = (msg: string, details_json: string) => Promise<void>
 
+async function dump() {
+  return (await cb.dump()).ids
+}
+
 async function add() {
   return (await cb.add()).id as APICallbackId
 }
 
 async function del(id: APICallbackId) {
   await cb.del({ id })
-}
-
-async function dump() {
-  return (await cb.dump()).ids
 }
 
 async function pull(id: APICallbackId) {
@@ -39,10 +39,11 @@ async function process(id: APICallbackId, cid: string, func: APICallback) {
   await response(id, cid)
 }
 
-export const callback = {
+export const $callback = {
+  dump,
+
   add,
   del,
-  dump,
   pull,
   request,
   response,

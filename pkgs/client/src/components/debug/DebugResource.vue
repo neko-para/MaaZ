@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { APICallbackId, ResourceId } from '@maaz/maa'
 import { computed, onMounted, ref } from 'vue'
 import { VBtn, VCard, VDataTable } from 'vuetify/components'
 
-import { type MaaAPICallback } from '@/model/callback'
 import { handle } from '@/model/handle'
-import { type MaaResourceAPI, resource } from '@/model/resource'
+import { resource } from '@/model/resource'
 
 import DebugResourceDetail from './DebugResourceDetail.vue'
 import DebugSelectCallback from './DebugSelectCallback.vue'
@@ -13,7 +13,7 @@ import { dockerAddComponent } from './utils'
 const props = withDefaults(
   defineProps<{
     selectMode?: boolean
-    resource?: MaaResourceAPI
+    resource?: ResourceId
   }>(),
   {
     selectMode: false
@@ -21,7 +21,7 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-  'update:resource': [MaaResourceAPI | undefined]
+  'update:resource': [ResourceId | undefined]
 }>()
 
 const headers = computed(() => {
@@ -43,7 +43,7 @@ const headers = computed(() => {
 const loading = ref(0)
 const items = ref<
   {
-    id: MaaResourceAPI
+    id: ResourceId
     pointer: string
   }[]
 >([])
@@ -53,12 +53,12 @@ const selectCallbackEl = ref<InstanceType<typeof DebugSelectCallback> | null>(nu
 async function update() {
   loading.value += 1
   const res: {
-    id: MaaResourceAPI
+    id: ResourceId
     pointer: string
   }[] = []
   for (const [id, v] of Object.entries(await resource.dump())) {
     res.push({
-      id: id as MaaResourceAPI,
+      id: id as ResourceId,
       pointer: v.pointer
     })
   }
@@ -70,28 +70,28 @@ async function update() {
   loading.value -= 1
 }
 
-async function add(id: MaaAPICallback) {
+async function add(id: APICallbackId) {
   loading.value += 1
   await resource.create(id)
   await update()
   loading.value -= 1
 }
 
-async function remove(id: MaaResourceAPI) {
+async function remove(id: ResourceId) {
   loading.value += 1
   await resource.destroy(id)
   await update()
   loading.value -= 1
 }
 
-async function removeDirect(id: MaaResourceAPI) {
+async function removeDirect(id: ResourceId) {
   loading.value += 1
   await resource.destroyDirect(id)
   await update()
   loading.value -= 1
 }
 
-function detail(id: MaaResourceAPI) {
+function detail(id: ResourceId) {
   dockerAddComponent(id, DebugResourceDetail)
 }
 
@@ -115,7 +115,7 @@ onMounted(() => {
       :items="items"
       :show-select="selectMode"
       select-strategy="single"
-      :model-value="props.resource ? [props.resource] : ([] as MaaResourceAPI[])"
+      :model-value="props.resource ? [props.resource] : ([] as ResourceId[])"
       @update:model-value="
         v => {
           emits('update:resource', v.length > 0 ? v[0] : undefined)

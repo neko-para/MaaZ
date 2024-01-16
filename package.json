@@ -2,6 +2,7 @@
   "name": "maa-z",
   "version": "1.0.0",
   "scripts": {
+    "update": "cd pkgs/schema && npm run update",
     "dev": "cd pkgs/client && npx vite dev"
   },
   "keywords": [],

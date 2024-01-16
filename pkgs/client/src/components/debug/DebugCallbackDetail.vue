@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import type { APICallbackId } from '@maaz/maa'
 import { computed } from 'vue'
 import { VCard, VDataTable, VSpacer } from 'vuetify/components'
 
-import type { MaaAPICallback } from '@/model/callback'
 import { handle } from '@/model/handle'
 
 const props = defineProps<{
-  id: MaaAPICallback
+  id: APICallbackId
 }>()
 
 const headers = computed(() => {

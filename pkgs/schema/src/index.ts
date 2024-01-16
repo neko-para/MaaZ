@@ -1,5 +1,3 @@
-import { version } from 'os'
-
 import type { IApi } from './schema-api/interface-api'
 import { requestApi } from './schema-api/request-api'
 

@@ -1,17 +1,16 @@
 <script setup lang="ts">
+import type { APICallbackId } from '@maaz/maa'
 import { ref } from 'vue'
 import { VBtn, VCard, VDialog } from 'vuetify/components'
-
-import { type MaaAPICallback } from '@/model/callback'
 
 import DebugCallback from './DebugCallback.vue'
 
 const emits = defineEmits<{
-  selected: [MaaAPICallback]
+  selected: [APICallbackId]
 }>()
 
 const show = ref(false)
-const id = ref<MaaAPICallback | undefined>(undefined)
+const id = ref<APICallbackId | undefined>(undefined)
 
 function trigger() {
   show.value = true

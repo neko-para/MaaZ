@@ -1,20 +1,21 @@
+import type { APICallbackId, ResourceId } from '@maaz/maa'
 import { computed } from 'vue'
 
-import { type MaaAPICallback, callback } from './callback'
-import { type MaaResourceAPI, resource } from './resource'
+import { callback } from './callback'
+import { resource } from './resource'
 
 function useHandle() {
   const contain = (id: string) => {
     return computed(() => {
-      return !!(getCallback(id as MaaAPICallback) || getResource(id as MaaResourceAPI))
+      return !!(getCallback(id as APICallbackId) || getResource(id as ResourceId))
     })
   }
 
-  const getCallback = (id: MaaAPICallback) => {
+  const getCallback = (id: APICallbackId) => {
     return callback.callbacks[id]
   }
 
-  const getResource = (id: MaaResourceAPI) => {
+  const getResource = (id: ResourceId) => {
     return resource.resources[id]
   }
 

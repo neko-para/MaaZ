@@ -1004,15 +1004,12 @@
                     "application/json": {
                       "type": "object",
                       "properties": {
-                        "buffer": {
-                          "type": "string"
-                        },
                         "ctrl": {
                           "description": "MaaControllerAPI",
                           "type": "string"
                         }
                       },
-                      "required": ["buffer", "ctrl"]
+                      "required": ["ctrl"]
                     }
                   },
                   "required": ["application/json"]
@@ -4111,15 +4108,12 @@
                     "application/json": {
                       "type": "object",
                       "properties": {
-                        "buffer": {
-                          "type": "string"
-                        },
                         "res": {
                           "description": "MaaResourceAPI",
                           "type": "string"
                         }
                       },
-                      "required": ["buffer", "res"]
+                      "required": ["res"]
                     }
                   },
                   "required": ["application/json"]
@@ -4211,15 +4205,12 @@
                     "application/json": {
                       "type": "object",
                       "properties": {
-                        "buffer": {
-                          "type": "string"
-                        },
                         "res": {
                           "description": "MaaResourceAPI",
                           "type": "string"
                         }
                       },
-                      "required": ["buffer", "res"]
+                      "required": ["res"]
                     }
                   },
                   "required": ["application/json"]

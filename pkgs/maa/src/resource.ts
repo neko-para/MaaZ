@@ -1,4 +1,4 @@
-import { api } from '@maaz/schema'
+import { api, opaque } from '@maaz/schema'
 
 import type { APICallbackId } from './callback'
 import type { Status } from './types'
@@ -6,8 +6,12 @@ import type { Status } from './types'
 export type ResourceId = string & { __kind: 'MaaResourceAPI' }
 export type ResourceActionId = number & { __kind: 'MaaResourceActionId' }
 
+async function dump() {
+  return await opaque.MaaResourceAPI()
+}
+
 async function create(callback: APICallbackId) {
-  return (await api.MaaResourceCreate({ callback })).return
+  return (await api.MaaResourceCreate({ callback })).return as ResourceId
 }
 
 async function destroy(res: ResourceId) {
@@ -30,15 +34,25 @@ async function loaded(res: ResourceId) {
   return (await api.MaaResourceLoaded({ res })).return > 0
 }
 
-// async function getHash(res: ResourceId) {
-//    return await api.MaaResourceGetHash()
-// }
+async function getHash(res: ResourceId) {
+  const ret = await api.MaaResourceGetHash({ res })
+  return ret.return > 0 ? ret.buffer : null
+}
 
-export const resource = {
+async function getTaskList(res: ResourceId) {
+  const ret = await api.MaaResourceGetTaskList({ res })
+  return ret.return > 0 ? ret.buffer : null
+}
+
+export const $resource = {
+  dump,
+
   create,
   destroy,
   postPath,
   status,
   wait,
-  loaded
+  loaded,
+  getHash,
+  getTaskList
 }

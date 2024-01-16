@@ -17,6 +17,9 @@ importers:
       '@intlify/unplugin-vue-i18n':
         specifier: ^2.0.0
         version: 2.0.0(vue-i18n@9.9.0)
+      '@maaz/maa':
+        specifier: workspace:*
+        version: link:../maa
       '@maaz/schema':
         specifier: workspace:*
         version: link:../schema
