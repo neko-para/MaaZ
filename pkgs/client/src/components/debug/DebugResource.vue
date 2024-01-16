@@ -6,7 +6,23 @@ import { type MaaAPICallback } from '@/model/callback'
 import { handle } from '@/model/handle'
 import { type MaaResourceAPI, resource } from '@/model/resource'
 
+import DebugResourceDetail from './DebugResourceDetail.vue'
 import DebugSelectCallback from './DebugSelectCallback.vue'
+import { dockerAddComponent } from './utils'
+
+const props = withDefaults(
+  defineProps<{
+    selectMode?: boolean
+    resource?: MaaResourceAPI
+  }>(),
+  {
+    selectMode: false
+  }
+)
+
+const emits = defineEmits<{
+  'update:resource': [MaaResourceAPI | undefined]
+}>()
 
 const headers = computed(() => {
   return [
@@ -46,6 +62,10 @@ async function update() {
       pointer: v.pointer
     })
   }
+
+  if (props.selectMode && props.resource && res.findIndex(x => x.id === props.resource) !== -1) {
+    emits('update:resource', undefined)
+  }
   items.value = res
   loading.value -= 1
 }
@@ -71,9 +91,8 @@ async function removeDirect(id: MaaResourceAPI) {
   loading.value -= 1
 }
 
-async function load(id: MaaResourceAPI) {
-  const path = '/Users/nekosu/Documents/Projects/MAA/MAA1999/install/resource'
-  await resource.postPath(id, path)
+function detail(id: MaaResourceAPI) {
+  dockerAddComponent(id, DebugResourceDetail)
 }
 
 onMounted(() => {
@@ -88,9 +107,21 @@ onMounted(() => {
     <span class="text-lg font-bold"> MaaResource </span>
     <div class="flex gap-2">
       <v-btn text="刷新" append-icon="mdi-refresh" @click="update"></v-btn>
-      <v-btn text="添加" append-icon="mdi-plus" @click="selectCallbackEl?.trigger"></v-btn>
+      <v-btn text="添加" append-icon="mdi-plus" @click="selectCallbackEl?.trigger()"></v-btn>
     </div>
-    <v-data-table :headers="headers" :loading="loading > 0" :items="items">
+    <v-data-table
+      :headers="headers"
+      :loading="loading > 0"
+      :items="items"
+      :show-select="selectMode"
+      select-strategy="single"
+      :model-value="props.resource ? [props.resource] : ([] as MaaResourceAPI[])"
+      @update:model-value="
+        v => {
+          emits('update:resource', v.length > 0 ? v[0] : undefined)
+        }
+      "
+    >
       <template v-slot:item.id="{ item }">
         <span v-if="handle.getResource(item.id)">{{ item.id }}</span>
         <span v-else class="text-red-500">{{ item.id }}</span>
@@ -98,7 +129,12 @@ onMounted(() => {
 
       <template v-slot:item.action="{ item }">
         <template v-if="handle.getResource(item.id)">
-          <v-btn variant="text" text="加载" size="small" @click="load(item.id)"></v-btn>
+          <v-btn
+            variant="text"
+            icon="mdi-dots-horizontal"
+            size="small"
+            @click="detail(item.id)"
+          ></v-btn>
           <v-btn variant="text" icon="mdi-close" size="small" @click="remove(item.id)"></v-btn>
         </template>
         <template v-else>

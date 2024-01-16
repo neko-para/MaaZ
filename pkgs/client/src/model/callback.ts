@@ -1,36 +1,64 @@
 import { callback as cb } from '@maaz/schema'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 
 export type MaaAPICallback = string & { __kind: 'MaaAPICallback' }
 
 export interface MaaCallbackInfo {
   type: 'callback'
-  used: Set<string>
-  timer: ReturnType<typeof setInterval> | null
+  used: Record<string, true>
   log: {
     cid: string
     arg: { msg: string; detail: unknown }
   }[]
+  state: {
+    pulling: boolean
+  }
 }
 
 function useCallback() {
   const callbacks = reactive<Record<MaaAPICallback, MaaCallbackInfo>>({})
 
+  watch(
+    callbacks,
+    v => {
+      localStorage.setItem('callback', JSON.stringify(v))
+    },
+    {
+      deep: true
+    }
+  )
+
+  const reinit = async () => {
+    const handles = (await cb.MaaAPICallback.dump()).ids
+    const storedInfo: Record<MaaAPICallback, MaaCallbackInfo> = JSON.parse(
+      localStorage.getItem('callback') ?? '{}'
+    )
+    for (const key in storedInfo) {
+      const k = key as MaaAPICallback
+      if (handles.includes(k)) {
+        const info = storedInfo[k]
+        info.state = {
+          pulling: false
+        }
+        callbacks[k] = info
+      }
+    }
+  }
+
   const add = async () => {
     const id = (await cb.MaaAPICallback.add()).id as MaaAPICallback
     callbacks[id] = {
       type: 'callback',
-      used: new Set(),
-      timer: null,
-      log: []
+      used: {},
+      log: [],
+      state: {
+        pulling: false
+      }
     }
     return id
   }
 
   const del = async (id: MaaAPICallback) => {
-    if (callbacks[id].timer !== null) {
-      clearInterval(callbacks[id].timer!)
-    }
     delete callbacks[id]
     await cb.MaaAPICallback.del({ id })
   }
@@ -43,44 +71,47 @@ function useCallback() {
     return (await cb.MaaAPICallback.dump()).ids
   }
 
-  const listen = (
-    id: MaaAPICallback,
-    func: (msg: string, details: unknown) => Promise<void>,
-    timer = 1000
-  ) => {
-    let running = false
+  const listen = (id: MaaAPICallback, func: (msg: string, details: unknown) => Promise<void>) => {
     const info = callbacks[id]
-    info.timer = setInterval(async () => {
-      if (running) {
-        return
-      }
-      running = true
+    info.state.pulling = true
+    const pull = async () => {
       const ids = (await cb.MaaAPICallback.pull({ id })).ids
-      for (const cid of ids) {
-        const { msg, details_json } = await cb.MaaAPICallback.request({ id, cid })
-        const detail = JSON.parse(details_json)
-        info.log.push({
-          cid,
-          arg: {
-            msg,
-            detail
-          }
+      await Promise.all(
+        ids.map(async cid => {
+          const { msg, details_json } = await cb.MaaAPICallback.request({ id, cid })
+          const detail = JSON.parse(details_json)
+          info.log.push({
+            cid,
+            arg: {
+              msg,
+              detail
+            }
+          })
+          await func(msg, detail)
+          await cb.MaaAPICallback.response({ id, cid })
         })
-        await func(msg, detail)
-        await cb.MaaAPICallback.response({ id, cid })
+      )
+      if (info.state.pulling) {
+        setTimeout(pull, 0)
       }
-      running = false
-    }, timer)
+    }
+    pull()
+  }
+
+  const stop = (id: MaaAPICallback) => {
+    callbacks[id].state.pulling = false
   }
 
   return {
     callbacks,
 
+    reinit,
     add,
     del,
     delDirect,
     dump,
-    listen
+    listen,
+    stop
   }
 }
 
