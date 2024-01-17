@@ -3,6 +3,7 @@ import { type Component, type ComputedRef, ref, shallowRef } from 'vue'
 import DebugCallback from '@/components/debug/DebugCallback.vue'
 import DebugResource from '@/components/debug/DebugResource.vue'
 
+import DebugController from './DebugController.vue'
 import DebugDevice from './DebugDevice.vue'
 
 interface CardInfo {
@@ -24,6 +25,11 @@ function useDocker() {
     add({
       id: '#resource',
       component: DebugResource,
+      props: {}
+    })
+    add({
+      id: '#controller',
+      component: DebugController,
       props: {}
     })
     add({

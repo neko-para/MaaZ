@@ -1,6 +1,6 @@
 import { api, opaque } from '@maaz/schema'
 
-import type { APICallbackId, Status } from '.'
+import type { APICallbackId, AdbType, Status } from '.'
 
 export type ControllerId = string & { __kind: 'MaaControllerAPI' }
 export type ControllerActionId = number & { __kind: 'MaaResourceActionId' }
@@ -8,7 +8,7 @@ export type ControllerActionId = number & { __kind: 'MaaResourceActionId' }
 export interface AdbConfig {
   adb_path: string
   address: string
-  type: number
+  type: AdbType
   config: string
 }
 
@@ -17,11 +17,13 @@ async function dump() {
 }
 
 async function createAdb(cfg: AdbConfig, agent_path: string, callback: APICallbackId) {
-  return await api.MaaAdbControllerCreateV2({
-    ...cfg,
-    agent_path,
-    callback
-  })
+  return (
+    await api.MaaAdbControllerCreateV2({
+      ...cfg,
+      agent_path,
+      callback
+    })
+  ).return as ControllerId
 }
 
 async function destroy(ctrl: ControllerId) {

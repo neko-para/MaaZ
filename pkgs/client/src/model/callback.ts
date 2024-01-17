@@ -1,7 +1,6 @@
 import { $callback, type APICallback, type APICallbackId } from '@maaz/maa'
 import { reactive, watch } from 'vue'
 
-import { docker } from '@/components/debug/docker'
 import { dockerDelComponent } from '@/components/debug/utils'
 
 export interface MaaCallbackInfo {
@@ -45,6 +44,9 @@ function useCallback() {
           pulling: false
         }
         callbacks[k] = info
+        listen(k, async (msg, details) => {
+          console.log(msg, details)
+        })
       }
     }
   }
@@ -95,7 +97,7 @@ function useCallback() {
         ids.map(async cid => {
           await $callback.process(id, cid, async (msg, details_json) => {
             const detail = JSON.parse(details_json)
-            info.log.push({
+            info.log.unshift({
               cid,
               arg: {
                 msg,

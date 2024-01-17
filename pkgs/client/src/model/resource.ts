@@ -1,5 +1,4 @@
-import { $resource, type APICallbackId, type ResourceId, Status } from '@maaz/maa'
-import { api, opaque } from '@maaz/schema'
+import { $resource, type APICallbackId, type ResourceId } from '@maaz/maa'
 import { reactive, watch } from 'vue'
 
 import { dockerDelComponent } from '@/components/debug/utils'

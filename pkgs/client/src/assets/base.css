@@ -5,3 +5,10 @@
 :root {
   --v-theme-overlay-multiplier: 1;
 }
+
+.maa-simple-form {
+  display: grid;
+  grid-template-columns: max-content auto;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+}
