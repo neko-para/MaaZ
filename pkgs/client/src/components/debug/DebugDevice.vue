@@ -99,7 +99,12 @@ onUnmounted(() => {
     </div>
     <v-expansion-panels :multiple="!selectMode">
       <v-expansion-panel v-for="cfg in configs" :key="cfg.address">
-        <template #title> {{ cfg.name }} - {{ cfg.address }} </template>
+        <template #title>
+          <div class="flex items-center gap-2">
+            <span> {{ cfg.name }} - {{ cfg.address }} </span>
+            <v-btn v-if="selectMode" @click.stop="emits('update:config', cfg)"> 复制 </v-btn>
+          </div>
+        </template>
         <template #text>
           <div class="flex flex-col gap-2">
             <div class="grid items-center gap-2" style="grid-template-columns: max-content auto">
@@ -116,9 +121,6 @@ onUnmounted(() => {
               <div>
                 <v-btn @click="viewJsonEl?.showCode(cfg.config)"> 查看 </v-btn>
               </div>
-            </div>
-            <div v-if="selectMode" class="flex gap-2">
-              <v-btn @click="emits('update:config', cfg)"> 复制 </v-btn>
             </div>
           </div>
         </template>

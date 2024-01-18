@@ -6,6 +6,15 @@ export const enum Status {
   Failed = 4000
 }
 
+export const enum ControllerOption {
+  Invalid = 0,
+  ScreenshotTargetLongSide = 1,
+  ScreenshotTargetShortSide = 2,
+  DefaultAppPackageEntry = 3,
+  DefaultAppPackage = 4,
+  Recording = 5
+}
+
 export const enum AdbType {
   Invalid = 0,
 

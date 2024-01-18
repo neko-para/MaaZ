@@ -1,6 +1,6 @@
 import { api, opaque } from '@maaz/schema'
 
-import type { APICallbackId, AdbType, Status } from '.'
+import type { APICallbackId, AdbType, ControllerOption, Status } from '.'
 
 export type ControllerId = string & { __kind: 'MaaControllerAPI' }
 export type ControllerActionId = number & { __kind: 'MaaResourceActionId' }
@@ -28,6 +28,26 @@ async function createAdb(cfg: AdbConfig, agent_path: string, callback: APICallba
 
 async function destroy(ctrl: ControllerId) {
   await api.MaaControllerDestroy({ ctrl })
+}
+
+async function setOptionI(
+  ctrl: ControllerId,
+  key: ControllerOption.ScreenshotTargetLongSide | ControllerOption.ScreenshotTargetShortSide,
+  value: number
+) {
+  return (await api.MaaControllerSetOptionInteger({ ctrl, key, value })).return > 0
+}
+
+async function setOptionS(
+  ctrl: ControllerId,
+  key: ControllerOption.DefaultAppPackageEntry | ControllerOption.DefaultAppPackage,
+  value: string
+) {
+  return (await api.MaaControllerSetOptionString({ ctrl, key, value })).return > 0
+}
+
+async function setOptionB(ctrl: ControllerId, key: ControllerOption.Recording, value: boolean) {
+  return (await api.MaaControllerSetOptionBoolean({ ctrl, key, value })).return > 0
 }
 
 async function postConnection(ctrl: ControllerId) {
@@ -60,6 +80,9 @@ export const $controller = {
 
   createAdb,
   destroy,
+  setOptionI,
+  setOptionS,
+  setOptionB,
   postConnection,
   status,
   wait,

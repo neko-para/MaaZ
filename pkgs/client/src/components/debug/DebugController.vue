@@ -2,7 +2,17 @@
 import { type APICallbackId, type AdbConfig, type ControllerId } from '@maaz/maa'
 import { computed, onMounted, ref } from 'vue'
 import { onUnmounted } from 'vue'
-import { VBtn, VCard, VDataTable, VDialog, VTextField } from 'vuetify/components'
+import {
+  VBtn,
+  VCard,
+  VDataTable,
+  VDialog,
+  VRadio,
+  VRadioGroup,
+  VTab,
+  VTabs,
+  VTextField
+} from 'vuetify/components'
 
 import { globalConfig } from '@/model/config'
 import { controller } from '@/model/controller'
@@ -54,6 +64,7 @@ const items = ref<
 >([])
 
 const showCreate = ref(false)
+const createType = ref<'adb'>('adb')
 const createConfig = ref<Partial<AdbConfig>>({})
 const createAgentPath = computed({
   get() {
@@ -108,6 +119,7 @@ function update() {
 }
 
 async function add() {
+  showCreate.value = false
   loading.value += 1
   await controller.createAdb(createConfig.value as AdbConfig, createCallback.value!)
   await update()
@@ -169,24 +181,49 @@ onUnmounted(() => {
 
   <v-dialog v-model="showCreate" class="w-2/3">
     <v-card class="flex flex-col gap-2 p-4">
+      <v-tabs v-model="createType" density="compact">
+        <v-tab value="adb">Adb</v-tab>
+        <v-tab value="win">Win</v-tab>
+      </v-tabs>
       <div class="maa-simple-form p-4">
-        <span> 配置 </span>
-        <div>
-          <v-btn @click="selectDeviceEl?.trigger()">选择设备</v-btn>
-        </div>
-        <span> Agent </span>
-        <div>
-          <v-text-field
-            v-model="createAgentPath"
-            label="agent"
-            hide-details
-            density="compact"
-          ></v-text-field>
-        </div>
+        <template v-if="createType === 'adb'">
+          <span> 连接 </span>
+          <div>
+            <v-btn @click="selectDeviceEl?.trigger()"> 配置连接 </v-btn>
+          </div>
+          <span> Agent </span>
+          <div>
+            <v-text-field
+              v-model="createAgentPath"
+              label="agent"
+              hide-details
+              density="compact"
+            ></v-text-field>
+          </div>
+        </template>
         <span> 回调 </span>
         <div class="flex items-center gap-2">
           <v-btn @click="selectCallbackEl?.trigger()">选择回调</v-btn>
           <span> {{ createCallback }} </span>
+        </div>
+        <span> 配置 </span>
+        <div class="maa-simple-form">
+          <span> 分辨率 </span>
+          <div class="flex items-center gap-2">
+            <v-radio-group class="grow-0" inline hide-details density="compact">
+              <v-radio value="long" label="长边"></v-radio>
+              <v-radio value="short" label="短边"></v-radio>
+            </v-radio-group>
+            <v-text-field suffix="px" label="size" hide-details density="compact"> </v-text-field>
+          </div>
+          <span> 启动 </span>
+          <div>
+            <v-text-field label="entry" hide-details density="compact"> </v-text-field>
+          </div>
+          <span> 退出 </span>
+          <div>
+            <v-text-field label="package" hide-details density="compact"> </v-text-field>
+          </div>
         </div>
       </div>
       <div class="flex gap-2">
