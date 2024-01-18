@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { $device, type AdbConfig, type DeviceInfo } from '@maaz/maa'
 import { onMounted, onUnmounted, ref } from 'vue'
-import { VBtn, VCard, VExpansionPanel, VExpansionPanels, VTextField } from 'vuetify/components'
+import { VBtn, VExpansionPanel, VExpansionPanels, VTextField, VTextarea } from 'vuetify/components'
 
 import DebugAdbType from './DebugAdbType.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
@@ -24,6 +24,17 @@ const emits = defineEmits<{
 
 const loading = ref(0)
 const configs = ref<DeviceInfo[]>([])
+const editingConfig = ref(false)
+
+function updateConfig() {
+  try {
+    emits('update:config', {
+      ...(props.config ?? {}),
+      config: JSON.stringify(JSON.parse(props.config?.config ?? '{}'), null, 2)
+    })
+  } catch (_) {}
+  editingConfig.value = false
+}
 
 const viewJsonEl = ref<InstanceType<typeof DebugViewJson> | null>(null)
 
@@ -49,6 +60,21 @@ async function realUpdate() {
 
 function update() {
   return triggerUpdate('device')
+}
+
+function acceptTab(e: KeyboardEvent) {
+  if (e.key == 'Tab' && e.target) {
+    const el = e.target as HTMLTextAreaElement
+    const val = el.value
+    const start = el.selectionStart
+    const end = el.selectionEnd
+
+    el.value = val.substring(0, start) + '\t' + val.substring(end)
+
+    el.selectionStart = el.selectionEnd = start + 1
+
+    e.preventDefault()
+  }
 }
 
 onMounted(() => {
@@ -142,7 +168,28 @@ onUnmounted(() => {
         "
       ></debug-adb-type>
       <span> 配置 </span>
-      <span> {{ config?.config }} </span>
+      <highlightjs
+        v-if="!editingConfig"
+        @click="editingConfig = true"
+        language="json"
+        :code="config?.config ?? '{}'"
+      ></highlightjs>
+      <v-textarea
+        v-else
+        variant="solo"
+        auto-grow
+        :model-value="config?.config ?? '{}'"
+        @update:model-value="
+          cfg => {
+            emits('update:config', {
+              ...(config ?? {}),
+              config: cfg
+            })
+          }
+        "
+        @blur="updateConfig"
+        @keydown="acceptTab"
+      ></v-textarea>
     </div>
   </debug-docker-card>
 </template>
