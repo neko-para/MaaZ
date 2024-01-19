@@ -85,6 +85,7 @@ async function setPackage() {
 
 const ctrlConnected = ref<boolean>(false)
 const ctrlUUID = ref<string | null>(null)
+const ctrlImage = ref<string | null>(null)
 
 async function postConnection() {
   ctrlConnected.value = false
@@ -108,6 +109,19 @@ async function updateInfo() {
   } else {
     ctrlUUID.value = null
   }
+}
+
+async function screencap() {
+  if (ctrlImage.value) {
+    ctrlImage.value = null
+  }
+  const actid = await $controller.postScreencap(props.id)
+  await $controller.wait(props.id, actid)
+  const png = await $controller.image(props.id, false)
+  if (!png) {
+    return
+  }
+  ctrlImage.value = png
 }
 
 onMounted(() => {
@@ -181,8 +195,12 @@ onMounted(() => {
         <v-btn text="配置" @click="showConfig = true"></v-btn>
         <v-btn text="回调" @click="openCallback"></v-btn>
         <v-btn text="刷新" @click="updateInfo" :loading="loading"></v-btn>
+        <v-btn text="截图" @click="screencap" :disabled="!ctrlConnected"></v-btn>
       </div>
       <span v-if="ctrlUUID"> UUID: {{ ctrlUUID }} </span>
+      <span v-if="ctrlImage">
+        <img :src="'data:image/png;base64,' + ctrlImage" />
+      </span>
     </div>
   </debug-docker-card>
 </template>

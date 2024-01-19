@@ -54,6 +54,10 @@ async function postConnection(ctrl: ControllerId) {
   return (await api.MaaControllerPostConnection({ ctrl })).return as ControllerActionId
 }
 
+async function postScreencap(ctrl: ControllerId) {
+  return (await api.MaaControllerPostScreencap({ ctrl })).return as ControllerActionId
+}
+
 async function status(ctrl: ControllerId, id: ControllerActionId) {
   return (await api.MaaControllerStatus({ ctrl, id })).return as Status
 }
@@ -75,6 +79,21 @@ async function uuid(ctrl: ControllerId) {
   }
 }
 
+async function image(ctrl: ControllerId, decode = true) {
+  const bufId = (await api.MaaCreateImageBuffer()).return
+  if ((await api.MaaControllerGetImage({ ctrl, buffer: bufId })).return === 0) {
+    await api.MaaDestroyImageBuffer({ handle: bufId })
+    return null
+  }
+  const data = (await api.MaaGetImageEncoded({ handle: bufId })).return
+  await api.MaaDestroyImageBuffer({ handle: bufId })
+  if (decode) {
+    return atob(data)
+  } else {
+    return data
+  }
+}
+
 export const $controller = {
   dump,
 
@@ -84,8 +103,10 @@ export const $controller = {
   setOptionS,
   setOptionB,
   postConnection,
+  postScreencap,
   status,
   wait,
   connected,
-  uuid
+  uuid,
+  image
 }
