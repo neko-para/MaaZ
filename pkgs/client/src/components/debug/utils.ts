@@ -1,8 +1,6 @@
-import { type Component, watch } from 'vue'
+import { type DockerComponent, docker } from '@/model/docker'
 
-import { docker } from '@/components/debug/docker'
-
-export function dockerAddComponent(id: string, component: Component) {
+export function dockerAddComponent(id: string, component: DockerComponent) {
   docker.add({
     id,
     component,

@@ -75,10 +75,6 @@ const createAgentPath = computed({
   }
 })
 const createCallback = ref<APICallbackId | null>(null)
-const createSide = ref<'long' | 'short' | null>(null)
-const createSideSize = ref(0)
-const createPackageEntry = ref('')
-const createPackage = ref('')
 
 const createParamProvided = computed(() => {
   const cfg = createConfig.value
@@ -146,7 +142,7 @@ async function removeDirect(id: ControllerId) {
 }
 
 function detail(id: ControllerId) {
-  dockerAddComponent(id, DebugControllerDetail)
+  dockerAddComponent(id, 'DebugControllerDetail')
 }
 
 onMounted(() => {
@@ -210,46 +206,6 @@ onUnmounted(() => {
         <div class="flex items-center gap-2">
           <v-btn @click="selectCallbackEl?.trigger()">选择回调</v-btn>
           <span> {{ createCallback }} </span>
-        </div>
-        <span> 配置 </span>
-        <div class="maa-simple-form">
-          <span> 分辨率 </span>
-          <div class="flex items-center gap-2">
-            <v-radio-group
-              v-model="createSide"
-              class="grow-0"
-              inline
-              hide-details
-              density="compact"
-            >
-              <v-radio value="long" label="长边"></v-radio>
-              <v-radio value="short" label="短边"></v-radio>
-            </v-radio-group>
-            <v-text-field
-              :model-value="createSideSize.toString()"
-              @update:model-value="
-                str => {
-                  createSideSize = Math.max(0, parseInt(str))
-                }
-              "
-              :disabled="!createSide"
-              suffix="px"
-              label="size"
-              hide-details
-              density="compact"
-            >
-            </v-text-field>
-          </div>
-          <span> 启动 </span>
-          <div>
-            <v-text-field v-model="createPackageEntry" label="entry" hide-details density="compact">
-            </v-text-field>
-          </div>
-          <span> 退出 </span>
-          <div>
-            <v-text-field v-model="createPackage" label="package" hide-details density="compact">
-            </v-text-field>
-          </div>
         </div>
       </div>
       <div class="flex gap-2">

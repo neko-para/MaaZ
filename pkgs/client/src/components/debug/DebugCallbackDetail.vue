@@ -40,7 +40,7 @@ const info = computed(() => {
     <template #title> 回调 - {{ id }} </template>
     <template #close> <slot name="close"> </slot> </template>
 
-    <div class="flex flex-col gap-2">
+    <div v-if="info" class="flex flex-col gap-2">
       <div class="flex gap-2">
         <v-btn text="清空" @click="info.log = []"></v-btn>
       </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { VBtn, VCard, VSpacer } from 'vuetify/components'
 
-import { docker } from './docker'
+import { docker } from '@/model/docker'
 
 withDefaults(
   defineProps<{
@@ -39,3 +39,4 @@ const emits = defineEmits<{
     <slot></slot>
   </v-card>
 </template>
+../../model/docker

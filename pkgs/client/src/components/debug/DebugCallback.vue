@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { APICallbackId } from '@maaz/maa'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { VBtn, VCard, VDataTable } from 'vuetify/components'
+import { VBtn, VDataTable } from 'vuetify/components'
 
 import { callback } from '@/model/callback'
 import { handle } from '@/model/handle'
 
-import DebugCallbackDetail from './DebugCallbackDetail.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
 import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
@@ -99,7 +98,7 @@ function stop(id: APICallbackId) {
 }
 
 function detail(id: APICallbackId) {
-  dockerAddComponent(id, DebugCallbackDetail)
+  dockerAddComponent(id, 'DebugCallbackDetail')
 }
 
 onMounted(() => {

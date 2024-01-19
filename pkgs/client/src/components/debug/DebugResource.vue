@@ -2,14 +2,13 @@
 import type { APICallbackId, ResourceId } from '@maaz/maa'
 import { computed, onMounted, ref } from 'vue'
 import { onUnmounted } from 'vue'
-import { VBtn, VCard, VDataTable } from 'vuetify/components'
+import { VBtn, VDataTable } from 'vuetify/components'
 
 import { handle } from '@/model/handle'
 import { resource } from '@/model/resource'
 
 import DebugCallback from './DebugCallback.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
-import DebugResourceDetail from './DebugResourceDetail.vue'
 import DebugSelect from './DebugSelect.vue'
 import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
@@ -99,7 +98,7 @@ async function removeDirect(id: ResourceId) {
 }
 
 function detail(id: ResourceId) {
-  dockerAddComponent(id, DebugResourceDetail)
+  dockerAddComponent(id, 'DebugResourceDetail')
 }
 
 onMounted(() => {

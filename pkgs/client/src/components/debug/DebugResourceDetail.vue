@@ -5,7 +5,6 @@ import { computed } from 'vue'
 import { onMounted } from 'vue'
 import { VBtn, VCard, VChip, VDialog, VTextField } from 'vuetify/components'
 
-import DebugCallbackDetail from '@/components/debug/DebugCallbackDetail.vue'
 import { handle } from '@/model/handle'
 
 import DebugDockerCard from './DebugDockerCard.vue'
@@ -53,7 +52,7 @@ async function postLoad() {
 }
 
 function openCallback() {
-  dockerAddComponent(info.value.cbid, DebugCallbackDetail)
+  dockerAddComponent(info.value.cbid, 'DebugCallbackDetail')
 }
 
 async function updateInfo() {
@@ -89,7 +88,7 @@ onMounted(() => {
     <template #title> 资源 {{ resLoaded ? ' - 已加载' : '' }} - {{ id }} </template>
     <template #close> <slot name="close"> </slot> </template>
 
-    <div class="flex flex-col gap-2">
+    <div v-if="info" class="flex flex-col gap-2">
       <div class="flex gap-2">
         <v-btn text="加载" @click="load"></v-btn>
         <v-btn text="回调" @click="openCallback"></v-btn>
