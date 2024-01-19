@@ -174,13 +174,13 @@ onUnmounted(() => {
         v-if="!editingConfig"
         @click="editingConfig = true"
         language="json"
-        :code="config?.config ?? '{}'"
+        :code="config?.config ?? ''"
       ></highlightjs>
       <v-textarea
         v-else
         variant="solo"
         auto-grow
-        :model-value="config?.config ?? '{}'"
+        :model-value="config?.config ?? ''"
         @update:model-value="
           cfg => {
             emits('update:config', {
