@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { VTextarea } from 'vuetify/components'
 
 const props = defineProps<{
+  readonly?: boolean
   json: string
 }>()
 
@@ -46,7 +47,12 @@ function acceptTab(e: KeyboardEvent) {
 </script>
 
 <template>
-  <highlightjs v-if="!editing" @click="editing = true" language="json" :code="json"></highlightjs>
+  <highlightjs
+    v-if="!editing"
+    @click="!readonly && (editing = true)"
+    language="json"
+    :code="json"
+  ></highlightjs>
   <v-textarea
     v-else
     variant="solo"

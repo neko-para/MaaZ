@@ -136,6 +136,7 @@ onUnmounted(() => {
       :headers="headers"
       :loading="loading > 0"
       :items="items"
+      density="compact"
       :show-select="selectMode"
       select-strategy="single"
       :model-value="props.instance ? [props.instance] : ([] as InstanceId[])"
@@ -146,27 +147,17 @@ onUnmounted(() => {
       "
     >
       <template v-slot:item.id="{ item }">
-        <span v-if="handle.getInstance(item.id)">{{ item.id }}</span>
-        <span v-else class="text-red-500">{{ item.id }}</span>
+        <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getInstance(item.id)">
+          {{ item.id }}
+        </v-btn>
       </template>
 
       <template v-slot:item.action="{ item }">
         <template v-if="handle.getInstance(item.id)">
-          <v-btn
-            variant="text"
-            icon="mdi-dots-horizontal"
-            size="small"
-            @click="detail(item.id)"
-          ></v-btn>
-          <v-btn variant="text" icon="mdi-close" size="small" @click="remove(item.id)"></v-btn>
+          <v-btn variant="text" @click="remove(item.id)"> 删除 </v-btn>
         </template>
         <template v-else>
-          <v-btn
-            variant="text"
-            icon="mdi-close"
-            size="small"
-            @click="removeDirect(item.id)"
-          ></v-btn>
+          <v-btn variant="text" @click="removeDirect(item.id)"> 移除 </v-btn>
         </template>
       </template>
     </v-data-table>

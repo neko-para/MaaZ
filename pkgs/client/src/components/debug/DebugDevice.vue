@@ -6,7 +6,6 @@ import { VBtn, VExpansionPanel, VExpansionPanels, VTextField, VTextarea } from '
 import DebugAdbType from './DebugAdbType.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
 import DebugViewEditJson from './DebugViewEditJson.vue'
-import DebugViewJson from './DebugViewJson.vue'
 import { registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
 withDefaults(
@@ -25,8 +24,6 @@ const emits = defineEmits<{
 
 const loading = ref(0)
 const configs = ref<DeviceInfo[]>([])
-
-const viewJsonEl = ref<InstanceType<typeof DebugViewJson> | null>(null)
 
 async function scan() {
   loading.value += 1
@@ -63,8 +60,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <debug-view-json ref="viewJsonEl"></debug-view-json>
-
   <debug-docker-card id="#device" :closable="false" class="bg-blue-200">
     <template #title> 设备列表 </template>
 
@@ -93,9 +88,7 @@ onUnmounted(() => {
               <span> 类型 </span>
               <debug-adb-type :type="cfg.type" readonly></debug-adb-type>
               <span> 配置 </span>
-              <div>
-                <v-btn @click="viewJsonEl?.showCode(cfg.config)"> 查看 </v-btn>
-              </div>
+              <debug-view-edit-json :json="cfg.config" readonly></debug-view-edit-json>
             </div>
           </div>
         </template>

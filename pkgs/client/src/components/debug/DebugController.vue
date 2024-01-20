@@ -232,6 +232,7 @@ onUnmounted(() => {
       :headers="headers"
       :loading="loading > 0"
       :items="items"
+      density="compact"
       :show-select="selectMode"
       select-strategy="single"
       :model-value="props.controller ? [props.controller] : ([] as ControllerId[])"
@@ -240,7 +241,6 @@ onUnmounted(() => {
           emits('update:controller', v.length > 0 ? v[0] : null)
         }
       "
-      density="compact"
     >
       <template v-slot:item.id="{ item }">
         <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getController(item.id)">

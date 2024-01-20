@@ -124,6 +124,7 @@ onUnmounted(() => {
       :headers="headers"
       :loading="loading > 0"
       :items="items"
+      density="compact"
       :show-select="selectMode"
       select-strategy="single"
       :model-value="props.callback ? [props.callback] : ([] as APICallbackId[])"
@@ -134,46 +135,30 @@ onUnmounted(() => {
       "
     >
       <template v-slot:item.id="{ item }">
-        <span v-if="handle.getCallback(item.id)">{{ item.id }}</span>
-        <span v-else class="text-red-500">{{ item.id }}</span>
+        <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getCallback(item.id)">
+          {{ item.id }}
+        </v-btn>
       </template>
       <template v-slot:item.action="{ item }">
         <template v-if="handle.getCallback(item.id)">
           <v-btn
-            variant="text"
-            icon="mdi-dots-horizontal"
-            size="small"
-            @click="detail(item.id)"
-          ></v-btn>
-          <v-btn
             v-if="handle.getCallback(item.id).state.running"
             variant="text"
-            icon="mdi-sync"
-            size="small"
             @click="stop(item.id)"
-          ></v-btn>
-          <v-btn
-            v-else
-            variant="text"
-            icon="mdi-sync-off"
-            size="small"
-            @click="listen(item.id)"
-          ></v-btn>
+          >
+            断开
+          </v-btn>
+          <v-btn v-else variant="text" @click="listen(item.id)"> 同步 </v-btn>
           <v-btn
             variant="text"
-            icon="mdi-close"
-            size="small"
             :disabled="Object.keys(handle.getCallback(item.id).used).length > 0"
             @click="remove(item.id)"
-          ></v-btn>
+          >
+            删除
+          </v-btn>
         </template>
         <template v-else>
-          <v-btn
-            variant="text"
-            icon="mdi-close"
-            size="small"
-            @click="removeDirect(item.id)"
-          ></v-btn>
+          <v-btn variant="text" @click="removeDirect(item.id)"> 移除 </v-btn>
         </template>
       </template>
     </v-data-table>
