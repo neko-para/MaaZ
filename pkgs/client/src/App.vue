@@ -24,6 +24,10 @@ const { connect, connecting, disconnect, version } = service
 
 const showDrawer = ref(false)
 
+function gotoGithub() {
+  window.open('https://github.com/neko-para/MaaZ', '_blank')
+}
+
 onMounted(() => {
   connect()
 })
@@ -39,6 +43,7 @@ onMounted(() => {
       <v-toolbar-title>maa-z</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn v-if="version" @click="disconnect"> 已连接 - {{ version }} </v-btn>
+      <v-btn @click="gotoGithub"> Github </v-btn>
     </v-app-bar>
 
     <!-- <v-navigation-drawer v-model="showDrawer">
