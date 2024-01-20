@@ -5,10 +5,11 @@ import { VBtn, VExpansionPanel, VExpansionPanels, VTextField, VTextarea } from '
 
 import DebugAdbType from './DebugAdbType.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
+import DebugViewEditJson from './DebugViewEditJson.vue'
 import DebugViewJson from './DebugViewJson.vue'
 import { registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     selectMode?: boolean
     config?: Partial<AdbConfig>
@@ -24,17 +25,6 @@ const emits = defineEmits<{
 
 const loading = ref(0)
 const configs = ref<DeviceInfo[]>([])
-const editingConfig = ref(false)
-
-function updateConfig() {
-  try {
-    emits('update:config', {
-      ...(props.config ?? {}),
-      config: JSON.stringify(JSON.parse(props.config?.config ?? '{}'), null, 2)
-    })
-  } catch (_) {}
-  editingConfig.value = false
-}
 
 const viewJsonEl = ref<InstanceType<typeof DebugViewJson> | null>(null)
 
@@ -60,21 +50,6 @@ async function realUpdate() {
 
 function update() {
   return triggerUpdate('device')
-}
-
-function acceptTab(e: KeyboardEvent) {
-  if (e.key == 'Tab' && e.target) {
-    const el = e.target as HTMLTextAreaElement
-    const val = el.value
-    const start = el.selectionStart
-    const end = el.selectionEnd
-
-    el.value = val.substring(0, start) + '\t' + val.substring(end)
-
-    el.selectionStart = el.selectionEnd = start + 1
-
-    e.preventDefault()
-  }
 }
 
 onMounted(() => {
@@ -170,18 +145,9 @@ onUnmounted(() => {
         "
       ></debug-adb-type>
       <span> 配置 </span>
-      <highlightjs
-        v-if="!editingConfig"
-        @click="editingConfig = true"
-        language="json"
-        :code="config?.config ?? ''"
-      ></highlightjs>
-      <v-textarea
-        v-else
-        variant="solo"
-        auto-grow
-        :model-value="config?.config ?? ''"
-        @update:model-value="
+      <debug-view-edit-json
+        :json="config?.config ?? '{}'"
+        @update:json="
           cfg => {
             emits('update:config', {
               ...(config ?? {}),
@@ -189,9 +155,7 @@ onUnmounted(() => {
             })
           }
         "
-        @blur="updateConfig"
-        @keydown="acceptTab"
-      ></v-textarea>
+      ></debug-view-edit-json>
     </div>
   </debug-docker-card>
 </template>

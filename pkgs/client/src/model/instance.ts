@@ -3,7 +3,9 @@ import {
   type APICallbackId,
   type ControllerId,
   type InstanceId,
-  type ResourceId
+  type InstanceTaskId,
+  type ResourceId,
+  Status
 } from '@maaz/maa'
 import { reactive, watch } from 'vue'
 
@@ -11,11 +13,18 @@ import { dockerDelComponent } from '@/components/debug/utils'
 
 import { handle } from './handle'
 
+type TaskInfo = {
+  task: string
+  taskid: InstanceTaskId
+  status: Status
+}
+
 export interface MaaInstanceInfo {
   type: 'instance'
   cbid: APICallbackId
   resid: ResourceId | null
   ctrlid: ControllerId | null
+  tasks: TaskInfo[]
 }
 
 function useInstance() {
@@ -31,6 +40,17 @@ function useInstance() {
     }
   )
 
+  const startFetch = (id: InstanceId, info: TaskInfo) => {
+    let fetchStatus = async () => {
+      const status = await $instance.status(id, info.taskid)
+      info.status = status
+      setTimeout(fetchStatus, 1000)
+    }
+    if (info.status === Status.Pending || info.status === Status.Running) {
+      fetchStatus()
+    }
+  }
+
   const reinit = async () => {
     const handles = await $instance.dump()
     const storedInfo: Record<InstanceId, MaaInstanceInfo> = JSON.parse(
@@ -40,6 +60,10 @@ function useInstance() {
       const k = key as InstanceId
       if (k in handles) {
         instances[k] = storedInfo[k]
+        const info = instances[k]
+        for (const taskinfo of info.tasks) {
+          startFetch(k, taskinfo)
+        }
       }
     }
   }
@@ -55,7 +79,8 @@ function useInstance() {
       type: 'instance',
       cbid,
       resid: null,
-      ctrlid: null
+      ctrlid: null,
+      tasks: []
     }
     return id
   }
@@ -98,6 +123,18 @@ function useInstance() {
     return await $instance.bindCtrl(id, ctrl)
   }
 
+  const postTask = async (id: InstanceId, task: string, param: string) => {
+    const info = instances[id]
+    const taskid = await $instance.postTask(id, task, param)
+    info.tasks.unshift({
+      task,
+      taskid,
+      status: Status.Pending
+    })
+    startFetch(id, info.tasks[0])
+    return task
+  }
+
   return {
     instances,
 
@@ -107,7 +144,8 @@ function useInstance() {
     destroy,
     destroyDirect,
     bindRes,
-    bindCtrl
+    bindCtrl,
+    postTask
   }
 }
 

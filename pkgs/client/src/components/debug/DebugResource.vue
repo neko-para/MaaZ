@@ -158,7 +158,13 @@ onUnmounted(() => {
             size="small"
             @click="detail(item.id)"
           ></v-btn>
-          <v-btn variant="text" icon="mdi-close" size="small" @click="remove(item.id)"></v-btn>
+          <v-btn
+            variant="text"
+            icon="mdi-close"
+            size="small"
+            @click="remove(item.id)"
+            :disabled="Object.keys(handle.getResource(item.id).used).length > 0"
+          ></v-btn>
         </template>
         <template v-else>
           <v-btn

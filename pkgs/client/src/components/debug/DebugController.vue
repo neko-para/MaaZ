@@ -82,7 +82,6 @@ const createParamProvided = computed(() => {
     cfg.adb_path &&
     cfg.address &&
     cfg.type &&
-    cfg.config &&
     createAgentPath.value &&
     createCallback.value
   )
@@ -122,7 +121,13 @@ function update() {
 async function add() {
   showCreate.value = false
   loading.value += 1
-  await controller.createAdb(createConfig.value as AdbConfig, createCallback.value!)
+  await controller.createAdb(
+    {
+      config: '{}',
+      ...(createConfig.value as Omit<AdbConfig, 'config'>)
+    },
+    createCallback.value!
+  )
   await update()
   loading.value -= 1
 }
@@ -249,7 +254,13 @@ onUnmounted(() => {
             size="small"
             @click="detail(item.id)"
           ></v-btn>
-          <v-btn variant="text" icon="mdi-close" size="small" @click="remove(item.id)"></v-btn>
+          <v-btn
+            variant="text"
+            icon="mdi-close"
+            size="small"
+            @click="remove(item.id)"
+            :disabled="Object.keys(handle.getController(item.id).used).length > 0"
+          ></v-btn>
         </template>
         <template v-else>
           <v-btn

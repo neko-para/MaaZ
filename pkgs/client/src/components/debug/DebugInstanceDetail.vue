@@ -11,7 +11,7 @@ import {
 import { ref } from 'vue'
 import { computed } from 'vue'
 import { onMounted } from 'vue'
-import { VBtn, VCard, VChip, VDialog, VTextField } from 'vuetify/components'
+import { VAutocomplete, VBtn, VCard, VDataTable, VDialog, VTextField } from 'vuetify/components'
 
 import { handle } from '@/model/handle'
 import { instance } from '@/model/instance'
@@ -37,11 +37,31 @@ const ctrlInited = ref<boolean>(false)
 const selectResourceEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 const selectControllerEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 
-const running = ref(false)
 const showPostTask = ref(false)
 const task = ref('')
-const actionId = ref<InstanceTaskId | null>(null)
-const actionStatus = ref<Status | null>(null)
+const taskList = ref<string[]>([])
+
+const running = computed(() => {
+  return (
+    info.value.tasks.filter(x => x.status === Status.Pending || x.status === Status.Running)
+      .length > 0
+  )
+})
+
+const headers = [
+  {
+    title: 'TaskID',
+    key: 'taskid'
+  },
+  {
+    title: 'Task',
+    key: 'task'
+  },
+  {
+    title: 'Status',
+    key: 'status'
+  }
+]
 
 function openCallback() {
   dockerAddComponent(info.value.cbid, 'DebugCallbackDetail')
@@ -85,26 +105,21 @@ async function updateInfo() {
   ctrlInited.value = await $instance.inited(props.id)
 }
 
-function selectTask() {
+async function selectTask() {
   showPostTask.value = true
+  taskList.value = []
+  if (info.value.resid) {
+    const resid = info.value.resid
+    if (!(await $resource.loaded(info.value.resid))) {
+      return
+    }
+    taskList.value = JSON.parse((await $resource.getTaskList(resid)) ?? '[]')
+  }
 }
 
 async function postTask() {
   showPostTask.value = false
-  running.value = true
-  actionId.value = await $instance.postTask(props.id, task.value, '{}')
-  let fin = false
-  const timer = setInterval(async () => {
-    const status = await $instance.status(props.id, actionId.value!)
-    if (!fin) {
-      actionStatus.value = status
-    }
-  }, 1000)
-  const status = await $instance.wait(props.id, actionId.value)
-  clearTimeout(timer)
-  fin = true
-  actionStatus.value = status
-  running.value = false
+  await instance.postTask(props.id, task.value, '{}')
 }
 
 async function postStop() {
@@ -147,9 +162,17 @@ onMounted(() => {
 
   <v-dialog v-model="showPostTask" class="w-1/2">
     <v-card class="flex flex-col gap-2 p-4">
-      <v-text-field v-model="task" hide-details density="compact"></v-text-field>
+      <div class="maa-simple-form">
+        <span> 任务 </span>
+        <v-autocomplete
+          v-model="task"
+          :items="taskList"
+          hide-details
+          density="compact"
+        ></v-autocomplete>
+      </div>
       <div class="flex">
-        <v-btn @click="postTask"> 启动 </v-btn>
+        <v-btn @click="postTask" :disabled="!task"> 启动 </v-btn>
       </div>
     </v-card>
   </v-dialog>
@@ -171,12 +194,11 @@ onMounted(() => {
         <v-btn v-if="info.resid" @click="openResource"> Res: {{ info.resid }} </v-btn>
         <v-btn v-if="info.ctrlid" @click="openController"> Ctrl: {{ info.ctrlid }} </v-btn>
       </div>
-      <div v-if="actionId">
-        <span>
-          <span> 任务: {{ actionId }} </span>
-          <span v-if="actionStatus"> {{ statusText[actionStatus] }} </span>
-        </span>
-      </div>
+      <v-data-table :headers="headers" :items="info.tasks">
+        <template v-slot:item.status="{ value }">
+          <span> {{ statusText[value as Status] }} </span>
+        </template>
+      </v-data-table>
     </div>
   </debug-docker-card>
 </template>

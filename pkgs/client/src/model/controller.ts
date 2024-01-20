@@ -1,12 +1,4 @@
-import {
-  $controller,
-  $resource,
-  type APICallbackId,
-  type AdbConfig,
-  type ControllerId,
-  type ResourceId,
-  Status
-} from '@maaz/maa'
+import { $controller, type APICallbackId, type AdbConfig, type ControllerId } from '@maaz/maa'
 import { reactive, watch } from 'vue'
 
 import { dockerDelComponent } from '@/components/debug/utils'
