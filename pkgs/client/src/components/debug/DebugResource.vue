@@ -15,7 +15,7 @@ import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } f
 const props = withDefaults(
   defineProps<{
     selectMode?: boolean
-    resource?: ResourceId
+    resource?: ResourceId | null
   }>(),
   {
     selectMode: false
@@ -23,7 +23,7 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-  'update:resource': [ResourceId | undefined]
+  'update:resource': [ResourceId | null]
 }>()
 
 const headers = computed(() => {
@@ -66,7 +66,7 @@ async function realUpdate() {
   }
 
   if (props.selectMode && props.resource && res.findIndex(x => x.id === props.resource) !== -1) {
-    emits('update:resource', undefined)
+    emits('update:resource', null)
   }
   items.value = res
   loading.value -= 1
@@ -117,11 +117,7 @@ onUnmounted(() => {
     v-slot="{ value, setValue }"
     @selected="id => add(id as APICallbackId)"
   >
-    <debug-callback
-      select-mode
-      :callback="value as APICallbackId | null"
-      @update:callback="setValue"
-    ></debug-callback>
+    <debug-callback select-mode :callback="value" @update:callback="setValue"></debug-callback>
   </debug-select>
 
   <debug-docker-card id="#resource" :closable="false" class="bg-blue-200">
@@ -141,7 +137,7 @@ onUnmounted(() => {
       :model-value="props.resource ? [props.resource] : ([] as ResourceId[])"
       @update:model-value="
         v => {
-          emits('update:resource', v.length > 0 ? v[0] : undefined)
+          emits('update:resource', v.length > 0 ? v[0] : null)
         }
       "
     >

@@ -28,7 +28,7 @@ import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } f
 const props = withDefaults(
   defineProps<{
     selectMode?: boolean
-    controller?: ControllerId
+    controller?: ControllerId | null
   }>(),
   {
     selectMode: false
@@ -36,7 +36,7 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-  'update:controller': [ControllerId | undefined]
+  'update:controller': [ControllerId | null]
 }>()
 
 const headers = computed(() => {
@@ -108,7 +108,7 @@ async function realUpdate() {
     props.controller &&
     res.findIndex(x => x.id === props.controller) !== -1
   ) {
-    emits('update:controller', undefined)
+    emits('update:controller', null)
   }
   items.value = res
   loading.value -= 1
@@ -237,38 +237,29 @@ onUnmounted(() => {
       :model-value="props.controller ? [props.controller] : ([] as ControllerId[])"
       @update:model-value="
         v => {
-          emits('update:controller', v.length > 0 ? v[0] : undefined)
+          emits('update:controller', v.length > 0 ? v[0] : null)
         }
       "
+      density="compact"
     >
       <template v-slot:item.id="{ item }">
-        <span v-if="handle.getController(item.id)">{{ item.id }}</span>
-        <span v-else class="text-red-500">{{ item.id }}</span>
+        <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getController(item.id)">
+          {{ item.id }}
+        </v-btn>
       </template>
 
       <template v-slot:item.action="{ item }">
         <template v-if="handle.getController(item.id)">
           <v-btn
             variant="text"
-            icon="mdi-dots-horizontal"
-            size="small"
-            @click="detail(item.id)"
-          ></v-btn>
-          <v-btn
-            variant="text"
-            icon="mdi-close"
-            size="small"
             @click="remove(item.id)"
             :disabled="Object.keys(handle.getController(item.id).used).length > 0"
-          ></v-btn>
+          >
+            删除
+          </v-btn>
         </template>
         <template v-else>
-          <v-btn
-            variant="text"
-            icon="mdi-close"
-            size="small"
-            @click="removeDirect(item.id)"
-          ></v-btn>
+          <v-btn variant="text" @click="removeDirect(item.id)"> 移除 </v-btn>
         </template>
       </template>
     </v-data-table>
