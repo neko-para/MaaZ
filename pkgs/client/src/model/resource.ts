@@ -7,6 +7,7 @@ import { handle } from './handle'
 
 export interface MaaResourceInfo {
   type: 'resource'
+  used: Record<string, true>
   cbid: APICallbackId
 }
 
@@ -45,6 +46,7 @@ function useResource() {
     handle.getCallback(cbid).used[id] = true
     resources[id] = {
       type: 'resource',
+      used: {},
       cbid
     }
     return id

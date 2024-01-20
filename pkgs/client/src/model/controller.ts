@@ -17,6 +17,7 @@ import { handle } from './handle'
 export interface MaaControllerInfo {
   type: 'controller'
   cfg: AdbConfig
+  used: Record<string, true>
   cbid: APICallbackId
 }
 
@@ -56,6 +57,7 @@ function useController() {
     controllers[id] = {
       type: 'controller',
       cfg,
+      used: {},
       cbid
     }
     return id

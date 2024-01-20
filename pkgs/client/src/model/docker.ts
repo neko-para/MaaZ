@@ -5,6 +5,8 @@ import DebugCallbackDetail from '@/components/debug/DebugCallbackDetail.vue'
 import DebugController from '@/components/debug/DebugController.vue'
 import DebugControllerDetail from '@/components/debug/DebugControllerDetail.vue'
 import DebugDevice from '@/components/debug/DebugDevice.vue'
+import DebugInstance from '@/components/debug/DebugInstance.vue'
+import DebugInstanceDetail from '@/components/debug/DebugInstanceDetail.vue'
 import DebugResource from '@/components/debug/DebugResource.vue'
 import DebugResourceDetail from '@/components/debug/DebugResourceDetail.vue'
 
@@ -15,6 +17,8 @@ export const dockerComponentIndex = {
   DebugResourceDetail,
   DebugController,
   DebugControllerDetail,
+  DebugInstance,
+  DebugInstanceDetail,
   DebugDevice
 } as const
 
@@ -70,6 +74,14 @@ function useDocker() {
     )
     add(
       {
+        id: '#instance',
+        component: 'DebugInstance',
+        props: {}
+      },
+      false
+    )
+    add(
+      {
         id: '#device',
         component: 'DebugDevice',
         props: {}
@@ -80,7 +92,7 @@ function useDocker() {
 
   const add = (info: CardInfo, top = true) => {
     const exist = !!cards.value.find(x => x.id === info.id)
-    if (top) {
+    if (top || !exist) {
       cards.value = [
         {
           ...info

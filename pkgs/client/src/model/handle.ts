@@ -1,8 +1,9 @@
-import type { APICallbackId, ControllerId, ResourceId } from '@maaz/maa'
+import type { APICallbackId, ControllerId, InstanceId, ResourceId } from '@maaz/maa'
 import { computed } from 'vue'
 
 import { callback } from './callback'
 import { controller } from './controller'
+import { instance } from './instance'
 import { resource } from './resource'
 
 function useHandle() {
@@ -24,11 +25,16 @@ function useHandle() {
     return controller.controllers[id]
   }
 
+  const getInstance = (id: InstanceId) => {
+    return instance.instances[id]
+  }
+
   return {
     contain,
     getCallback,
     getResource,
-    getController
+    getController,
+    getInstance
   }
 }
 
