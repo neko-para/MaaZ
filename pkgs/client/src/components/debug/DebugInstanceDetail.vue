@@ -20,6 +20,7 @@ import DebugController from './DebugController.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
 import DebugResource from './DebugResource.vue'
 import DebugSelect from './DebugSelect.vue'
+import DebugViewEditJson from './DebugViewEditJson.vue'
 import { dockerAddComponent } from './utils'
 
 const props = defineProps<{
@@ -39,6 +40,7 @@ const selectControllerEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 
 const showPostTask = ref(false)
 const task = ref('')
+const taskParam = ref('{}')
 const taskList = ref<string[]>([])
 
 const running = computed(() => {
@@ -119,7 +121,7 @@ async function selectTask() {
 
 async function postTask() {
   showPostTask.value = false
-  await instance.postTask(props.id, task.value, '{}')
+  await instance.postTask(props.id, task.value, taskParam.value)
 }
 
 async function postStop() {
@@ -170,6 +172,8 @@ onMounted(() => {
           hide-details
           density="compact"
         ></v-autocomplete>
+        <span> 参数 </span>
+        <debug-view-edit-json v-model:json="taskParam"></debug-view-edit-json>
       </div>
       <div class="flex">
         <v-btn @click="postTask" :disabled="!task"> 启动 </v-btn>

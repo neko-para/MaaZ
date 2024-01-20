@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { ref } from 'vue'
 import { VTextarea } from 'vuetify/components'
 
@@ -11,6 +12,15 @@ const emits = defineEmits<{
 }>()
 
 const editing = ref(false)
+
+const error = computed(() => {
+  try {
+    JSON.parse(props.json)
+    return false
+  } catch (_) {
+    return true
+  }
+})
 
 function update() {
   try {
@@ -41,6 +51,9 @@ function acceptTab(e: KeyboardEvent) {
     v-else
     variant="solo"
     auto-grow
+    autofocus
+    :error-messages="error ? 'syntax error' : undefined"
+    hide-details="auto"
     :model-value="json"
     @update:model-value="(v: string) => emits('update:json', v)"
     @blur="update"
