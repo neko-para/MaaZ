@@ -7,7 +7,7 @@ import { defineConfig } from 'vite'
 // https://vitejs.dev/config
 export default defineConfig({
   root: __dirname,
-  base: './',
+  base: '/MaaZ',
   server: {
     host: '127.0.0.1',
     port: 9877

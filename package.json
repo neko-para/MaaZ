@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "update": "cd pkgs/schema && npm run update",
-    "dev": "cd pkgs/client && npx vite dev"
+    "dev": "cd pkgs/client && npx vite dev",
+    "build": "cd pkgs/client && npx vite build"
   },
   "keywords": [],
   "author": "",
