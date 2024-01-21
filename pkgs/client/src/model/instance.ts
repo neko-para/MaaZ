@@ -12,6 +12,7 @@ import { reactive, watch } from 'vue'
 import { dockerDelComponent } from '@/components/debug/utils'
 
 import { handle } from './handle'
+import { sync } from './storage'
 
 type TaskInfo = {
   task: string
@@ -30,15 +31,7 @@ export interface MaaInstanceInfo {
 function useInstance() {
   const instances = reactive<Record<InstanceId, MaaInstanceInfo>>({})
 
-  watch(
-    instances,
-    v => {
-      localStorage.setItem('instance', JSON.stringify(v))
-    },
-    {
-      deep: true
-    }
-  )
+  const _sync = sync('instance', instances)
 
   const startFetch = (id: InstanceId, info: TaskInfo) => {
     let fetchStatus = async () => {
@@ -53,9 +46,7 @@ function useInstance() {
 
   const reinit = async () => {
     const handles = await $instance.dump()
-    const storedInfo: Record<InstanceId, MaaInstanceInfo> = JSON.parse(
-      localStorage.getItem('instance') ?? '{}'
-    )
+    const storedInfo = _sync()
     for (const key in storedInfo) {
       const k = key as InstanceId
       if (k in handles) {

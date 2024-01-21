@@ -3,6 +3,8 @@ import { reactive, watch } from 'vue'
 
 import { dockerDelComponent } from '@/components/debug/utils'
 
+import { sync } from './storage'
+
 export interface MaaCallbackInfo {
   type: 'callback'
   used: Record<string, true>
@@ -20,21 +22,11 @@ export interface MaaCallbackInfo {
 function useCallback() {
   const callbacks = reactive<Record<APICallbackId, MaaCallbackInfo>>({})
 
-  watch(
-    callbacks,
-    v => {
-      localStorage.setItem('callback', JSON.stringify(v))
-    },
-    {
-      deep: true
-    }
-  )
+  const _sync = sync('callback', callbacks)
 
   const reinit = async () => {
     const handles = await $callback.dump()
-    const storedInfo: Record<APICallbackId, MaaCallbackInfo> = JSON.parse(
-      localStorage.getItem('callback') ?? '{}'
-    )
+    const storedInfo = _sync()
     for (const key in storedInfo) {
       const k = key as APICallbackId
       if (handles.includes(k)) {

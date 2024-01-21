@@ -44,7 +44,7 @@ function useDocker() {
     }
   )
 
-  const init = () => {
+  const reinit = () => {
     const cds = JSON.parse(localStorage.getItem('docker') ?? '[]')
     cards.value = cds
 
@@ -129,7 +129,7 @@ function useDocker() {
   return {
     cards,
 
-    init,
+    reinit,
     add,
     del,
     moveup,

@@ -5,6 +5,7 @@ import { dockerDelComponent } from '@/components/debug/utils'
 
 import { globalConfig } from './config'
 import { handle } from './handle'
+import { sync } from './storage'
 
 export interface MaaControllerInfo {
   type: 'controller'
@@ -16,21 +17,11 @@ export interface MaaControllerInfo {
 function useController() {
   const controllers = reactive<Record<ControllerId, MaaControllerInfo>>({})
 
-  watch(
-    controllers,
-    v => {
-      localStorage.setItem('controller', JSON.stringify(v))
-    },
-    {
-      deep: true
-    }
-  )
+  const _sync = sync('controller', controllers)
 
   const reinit = async () => {
     const handles = await $controller.dump()
-    const storedInfo: Record<ControllerId, MaaControllerInfo> = JSON.parse(
-      localStorage.getItem('controller') ?? '{}'
-    )
+    const storedInfo = _sync()
     for (const key in storedInfo) {
       const k = key as ControllerId
       if (k in handles) {

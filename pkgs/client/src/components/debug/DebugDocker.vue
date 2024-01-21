@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { VContainer } from 'vuetify/components'
 
 import { docker, dockerComponentIndex } from '@/model/docker'
 
-const { cards, init } = docker
-
-onMounted(() => {
-  init()
-})
+const { cards } = docker
 </script>
 
 <template>

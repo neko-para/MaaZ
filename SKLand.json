@@ -1,0 +1,40 @@
+{
+  "name": "森空岛",
+  "controller": {
+    "start": "com.hypergryph.skland/com.hypergryph.skland.SplashActivity",
+    "stop": "com.hypergryph.skland",
+    "orientation": "portrait",
+    "short": 720
+  },
+  "resource": {
+    "official": {
+      "name": "大陆",
+      "path": "."
+    }
+  },
+  "option": {
+    "close": {
+      "name": "关闭森空岛",
+      "type": "boolean"
+    }
+  },
+  "task": {
+    "sign": {
+      "name": "签到",
+      "task": "Skland",
+      "diff": [
+        {
+          "CloseSkland": {
+            "enabled": { "$ref": "close" }
+          }
+        }
+      ]
+    }
+  },
+  "entry": [
+    {
+      "name": "签到",
+      "tasks": ["sign"]
+    }
+  ]
+}

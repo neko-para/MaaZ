@@ -4,6 +4,7 @@ import { reactive, watch } from 'vue'
 import { dockerDelComponent } from '@/components/debug/utils'
 
 import { handle } from './handle'
+import { sync } from './storage'
 
 export interface MaaResourceInfo {
   type: 'resource'
@@ -14,21 +15,11 @@ export interface MaaResourceInfo {
 function useResource() {
   const resources = reactive<Record<ResourceId, MaaResourceInfo>>({})
 
-  watch(
-    resources,
-    v => {
-      localStorage.setItem('resource', JSON.stringify(v))
-    },
-    {
-      deep: true
-    }
-  )
+  const _sync = sync('resource', resources)
 
   const reinit = async () => {
     const handles = await $resource.dump()
-    const storedInfo: Record<ResourceId, MaaResourceInfo> = JSON.parse(
-      localStorage.getItem('resource') ?? '{}'
-    )
+    const storedInfo = _sync()
     for (const key in storedInfo) {
       const k = key as ResourceId
       if (k in handles) {

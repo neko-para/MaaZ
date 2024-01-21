@@ -39,4 +39,3 @@ const emits = defineEmits<{
     <slot></slot>
   </v-card>
 </template>
-../../model/docker
