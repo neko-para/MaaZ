@@ -25,7 +25,7 @@ defineExpose({
 
 <template>
   <v-dialog v-model="show" class="w-2/3">
-    <v-card class="flex flex-col gap-2 p-2">
+    <v-card class="flex flex-col gap-2 p-4">
       <slot
         :value="value"
         :set-value="

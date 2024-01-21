@@ -189,7 +189,12 @@ onMounted(() => {
       <div class="flex gap-2">
         <v-btn text="绑定资源" @click="selectRes" :disabled="running"></v-btn>
         <v-btn text="绑定控制器" @click="selectCtrl" :disabled="running"></v-btn>
-        <v-btn text="启动任务" @click="selectTask" :loading="running"></v-btn>
+        <v-btn
+          text="启动任务"
+          @click="selectTask"
+          :loading="running"
+          :disabled="!ctrlInited"
+        ></v-btn>
         <v-btn text="停止任务" @click="postStop" :disabled="!running"></v-btn>
         <v-btn text="回调" @click="openCallback"></v-btn>
         <v-btn text="刷新" @click="updateInfo"></v-btn>

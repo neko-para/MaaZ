@@ -128,7 +128,7 @@ function used(id: string) {
     <v-card class="flex flex-col gap-2 p-4">
       <v-tabs v-model="createType" density="compact">
         <v-tab value="adb">Adb</v-tab>
-        <v-tab value="win">Win</v-tab>
+        <v-tab value="win" disabled>Win</v-tab>
       </v-tabs>
       <div class="maa-simple-form p-4">
         <template v-if="createType === 'adb'">
