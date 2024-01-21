@@ -7,6 +7,7 @@ import { callback } from '@/model/callback'
 import { handle } from '@/model/handle'
 
 import DebugDockerCard from './DebugDockerCard.vue'
+import DebugHandleSelect from './DebugHandleSelect.vue'
 import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
 const props = withDefaults(
@@ -15,8 +16,7 @@ const props = withDefaults(
     callback?: APICallbackId | null
   }>(),
   {
-    selectMode: false,
-    callback: null
+    selectMode: false
   }
 )
 
@@ -24,67 +24,30 @@ const emits = defineEmits<{
   'update:callback': [APICallbackId | null]
 }>()
 
-const headers = computed(() => {
-  return [
-    {
-      title: 'ID',
-      key: 'id'
-    },
-    {
-      title: 'Action',
-      key: 'action'
-    }
-  ]
-})
-
-const loading = ref(0)
-const items = ref<
-  {
-    id: APICallbackId
-  }[]
->([])
-
-async function realUpdate() {
-  loading.value += 1
-  const res: {
-    id: APICallbackId
-  }[] = []
-  for (const id of await callback.dump()) {
-    res.push({
-      id: id as APICallbackId
-    })
-  }
-  if (props.selectMode && props.callback && !(props.callback in res)) {
-    emits('update:callback', null)
-  }
-  items.value = res
-  loading.value -= 1
-}
-
-function update() {
-  return triggerUpdate('callback')
+async function dump() {
+  return await callback.dump()
 }
 
 async function add() {
-  loading.value += 1
   const id = await callback.add()
   listen(id)
-  await update()
-  loading.value -= 1
+  return true
 }
 
-async function remove(id: APICallbackId) {
-  loading.value += 1
-  await callback.del(id)
-  await update()
-  loading.value -= 1
+async function del(id: string, direct: boolean) {
+  if (direct) {
+    await callback.delDirect(id as APICallbackId)
+  } else {
+    await callback.del(id as APICallbackId)
+  }
 }
 
-async function removeDirect(id: APICallbackId) {
-  loading.value += 1
-  await callback.delDirect(id)
-  await update()
-  loading.value -= 1
+function alive(id: string) {
+  return !!handle.getCallback(id as APICallbackId)
+}
+
+function used(id: string) {
+  return Object.keys(handle.getCallback(id as APICallbackId).used).length > 0
 }
 
 function listen(id: APICallbackId) {
@@ -96,71 +59,31 @@ function listen(id: APICallbackId) {
 function stop(id: APICallbackId) {
   callback.stop(id)
 }
-
-function detail(id: APICallbackId) {
-  dockerAddComponent(id, 'DebugCallbackDetail')
-}
-
-onMounted(() => {
-  registerUpdate('callback', realUpdate)
-  update()
-})
-
-onUnmounted(() => {
-  unregisterUpdate('callback', realUpdate)
-})
 </script>
 
 <template>
-  <debug-docker-card id="#callback" :closable="false" class="bg-blue-200">
+  <debug-handle-select
+    :select-mode="selectMode"
+    :handle="props.callback"
+    @update:handle="h => emits('update:callback', h as APICallbackId | null)"
+    type="callback"
+    :dump="dump"
+    :add="add"
+    :del="del"
+    :alive="alive"
+    :used="used"
+    detail-card="DebugCallbackDetail"
+  >
     <template #title> 回调列表 </template>
-
-    <div class="flex gap-2">
-      <v-btn text="刷新" @click="update"></v-btn>
-      <v-btn text="添加" @click="add"></v-btn>
-    </div>
-    <v-data-table
-      class="bg-white bg-opacity-50"
-      :headers="headers"
-      :loading="loading > 0"
-      :items="items"
-      density="compact"
-      :show-select="selectMode"
-      select-strategy="single"
-      :model-value="props.callback ? [props.callback] : ([] as APICallbackId[])"
-      @update:model-value="
-        v => {
-          emits('update:callback', v.length > 0 ? v[0] : null)
-        }
-      "
-    >
-      <template v-slot:item.id="{ item }">
-        <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getCallback(item.id)">
-          {{ item.id }}
-        </v-btn>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <template v-if="handle.getCallback(item.id)">
-          <v-btn
-            v-if="handle.getCallback(item.id).state.running"
-            variant="text"
-            @click="stop(item.id)"
-          >
-            断开
-          </v-btn>
-          <v-btn v-else variant="text" @click="listen(item.id)"> 同步 </v-btn>
-          <v-btn
-            variant="text"
-            :disabled="Object.keys(handle.getCallback(item.id).used).length > 0"
-            @click="remove(item.id)"
-          >
-            删除
-          </v-btn>
-        </template>
-        <template v-else>
-          <v-btn variant="text" @click="removeDirect(item.id)"> 移除 </v-btn>
-        </template>
-      </template>
-    </v-data-table>
-  </debug-docker-card>
+    <template #action="{ handle: h }">
+      <v-btn
+        v-if="handle.getCallback(h as APICallbackId).state.running"
+        variant="text"
+        @click="stop(h as APICallbackId)"
+      >
+        断开
+      </v-btn>
+      <v-btn v-else variant="text" @click="listen(h as APICallbackId)"> 同步 </v-btn>
+    </template>
+  </debug-handle-select>
 </template>

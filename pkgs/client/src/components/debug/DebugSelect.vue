@@ -35,8 +35,8 @@ defineExpose({
         "
       ></slot>
       <div class="flex gap-2">
-        <v-btn text="Ok" color="primary" @click="selected" :disabled="value === null"></v-btn>
-        <v-btn text="Cancel" @click="show = false"></v-btn>
+        <v-btn text="确认" color="primary" @click="selected" :disabled="value === null"></v-btn>
+        <v-btn text="取消" @click="show = false"></v-btn>
       </div>
     </v-card>
   </v-dialog>

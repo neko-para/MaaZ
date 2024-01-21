@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import type { APICallbackId, ResourceId } from '@maaz/maa'
-import { computed, onMounted, ref } from 'vue'
-import { onUnmounted } from 'vue'
-import { VBtn, VDataTable } from 'vuetify/components'
+import { ref } from 'vue'
+import { VBtn, VCard, VDialog } from 'vuetify/components'
 
 import { handle } from '@/model/handle'
 import { resource } from '@/model/resource'
 
 import DebugCallback from './DebugCallback.vue'
-import DebugDockerCard from './DebugDockerCard.vue'
+import DebugHandleSelect from './DebugHandleSelect.vue'
 import DebugSelect from './DebugSelect.vue'
-import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
 const props = withDefaults(
   defineProps<{
@@ -26,141 +24,88 @@ const emits = defineEmits<{
   'update:resource': [ResourceId | null]
 }>()
 
-const headers = computed(() => {
-  return [
-    {
-      title: 'ID',
-      key: 'id'
-    },
-    {
-      title: 'Addr',
-      key: 'pointer'
-    },
-    {
-      title: 'Action',
-      key: 'action'
-    }
-  ]
-})
-const loading = ref(0)
-const items = ref<
-  {
-    id: ResourceId
-    pointer: string
-  }[]
->([])
+const showCreate = ref(false)
+let createResolve: (done: boolean) => void = () => {}
+const createCallback = ref<APICallbackId | null>(null)
 
 const selectCallbackEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 
-async function realUpdate() {
-  loading.value += 1
-  const res: {
-    id: ResourceId
-    pointer: string
-  }[] = []
-  for (const [id, v] of Object.entries(await resource.dump())) {
-    res.push({
-      id: id as ResourceId,
-      pointer: v.pointer
-    })
+async function dump() {
+  return Object.keys(await resource.dump())
+}
+
+async function add() {
+  showCreate.value = true
+  return new Promise<boolean>(resolve => {
+    createResolve = resolve
+  })
+}
+
+async function create() {
+  showCreate.value = false
+  await resource.create(createCallback.value!)
+  createResolve(true)
+}
+
+function cancelCreate() {
+  showCreate.value = false
+  createResolve(false)
+}
+
+async function del(id: string, direct: boolean) {
+  if (direct) {
+    await resource.destroyDirect(id as ResourceId)
+  } else {
+    await resource.destroy(id as ResourceId)
   }
-
-  if (props.selectMode && props.resource && res.findIndex(x => x.id === props.resource) !== -1) {
-    emits('update:resource', null)
-  }
-  items.value = res
-  loading.value -= 1
 }
 
-function update() {
-  return triggerUpdate('resource')
+function alive(id: string) {
+  return !!handle.getResource(id as ResourceId)
 }
 
-async function add(id: APICallbackId) {
-  loading.value += 1
-  await resource.create(id)
-  await update()
-  loading.value -= 1
+function used(id: string) {
+  return Object.keys(handle.getResource(id as ResourceId).used).length > 0
 }
-
-async function remove(id: ResourceId) {
-  loading.value += 1
-  await resource.destroy(id)
-  await update()
-  loading.value -= 1
-}
-
-async function removeDirect(id: ResourceId) {
-  loading.value += 1
-  await resource.destroyDirect(id)
-  await update()
-  loading.value -= 1
-}
-
-function detail(id: ResourceId) {
-  dockerAddComponent(id, 'DebugResourceDetail')
-}
-
-onMounted(() => {
-  registerUpdate('resource', realUpdate)
-  update()
-})
-
-onUnmounted(() => {
-  unregisterUpdate('resource', realUpdate)
-})
 </script>
 
 <template>
   <debug-select
     ref="selectCallbackEl"
     v-slot="{ value, setValue }"
-    @selected="id => add(id as APICallbackId)"
+    @selected="id => (createCallback = id)"
   >
     <debug-callback select-mode :callback="value" @update:callback="setValue"></debug-callback>
   </debug-select>
 
-  <debug-docker-card id="#resource" :closable="false" class="bg-blue-200">
-    <template #title> 资源列表 </template>
+  <v-dialog :model-value="showCreate" class="w-2/3" @update:model-value="cancelCreate">
+    <v-card class="flex flex-col gap-2 p-4">
+      <div class="maa-simple-form p-4">
+        <span> 回调 </span>
+        <div class="flex items-center gap-2">
+          <v-btn @click="selectCallbackEl?.trigger()"> 选择回调 </v-btn>
+          <span> {{ createCallback }} </span>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <v-btn text="确认" color="primary" @click="create" :disabled="!createCallback"></v-btn>
+        <v-btn text="取消" @click="cancelCreate"></v-btn>
+      </div>
+    </v-card>
+  </v-dialog>
 
-    <div class="flex gap-2">
-      <v-btn text="刷新" @click="update"></v-btn>
-      <v-btn text="添加" @click="selectCallbackEl?.trigger()"></v-btn>
-    </div>
-    <v-data-table
-      class="bg-white bg-opacity-50"
-      :headers="headers"
-      :loading="loading > 0"
-      :items="items"
-      density="compact"
-      :show-select="selectMode"
-      select-strategy="single"
-      :model-value="props.resource ? [props.resource] : ([] as ResourceId[])"
-      @update:model-value="
-        v => {
-          emits('update:resource', v.length > 0 ? v[0] : null)
-        }
-      "
-    >
-      <template v-slot:item.id="{ item }">
-        <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getResource(item.id)">
-          {{ item.id }}
-        </v-btn>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <template v-if="handle.getResource(item.id)">
-          <v-btn
-            variant="text"
-            @click="remove(item.id)"
-            :disabled="Object.keys(handle.getResource(item.id).used).length > 0"
-          >
-            删除
-          </v-btn>
-        </template>
-        <template v-else>
-          <v-btn variant="text" @click="removeDirect(item.id)"> 移除 </v-btn>
-        </template>
-      </template>
-    </v-data-table>
-  </debug-docker-card>
+  <debug-handle-select
+    :select-mode="selectMode"
+    :handle="props.resource"
+    @update:handle="h => emits('update:resource', h as ResourceId | null)"
+    type="resource"
+    :dump="dump"
+    :add="add"
+    :del="del"
+    :alive="alive"
+    :used="used"
+    detail-card="DebugResourceDetail"
+  >
+    <template #title> 资源列表 </template>
+  </debug-handle-select>
 </template>

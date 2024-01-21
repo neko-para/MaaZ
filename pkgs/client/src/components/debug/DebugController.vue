@@ -1,29 +1,16 @@
 <script setup lang="ts">
 import { type APICallbackId, type AdbConfig, type ControllerId } from '@maaz/maa'
-import { computed, onMounted, ref } from 'vue'
-import { onUnmounted } from 'vue'
-import {
-  VBtn,
-  VCard,
-  VDataTable,
-  VDialog,
-  VRadio,
-  VRadioGroup,
-  VTab,
-  VTabs,
-  VTextField
-} from 'vuetify/components'
+import { computed, ref } from 'vue'
+import { VBtn, VCard, VDialog, VTab, VTabs, VTextField } from 'vuetify/components'
 
 import { globalConfig } from '@/model/config'
 import { controller } from '@/model/controller'
 import { handle } from '@/model/handle'
 
 import DebugCallback from './DebugCallback.vue'
-import DebugControllerDetail from './DebugControllerDetail.vue'
 import DebugDevice from './DebugDevice.vue'
-import DebugDockerCard from './DebugDockerCard.vue'
+import DebugHandleSelect from './DebugHandleSelect.vue'
 import DebugSelect from './DebugSelect.vue'
-import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
 
 const props = withDefaults(
   defineProps<{
@@ -39,31 +26,8 @@ const emits = defineEmits<{
   'update:controller': [ControllerId | null]
 }>()
 
-const headers = computed(() => {
-  return [
-    {
-      title: 'ID',
-      key: 'id'
-    },
-    {
-      title: 'Addr',
-      key: 'pointer'
-    },
-    {
-      title: 'Action',
-      key: 'action'
-    }
-  ]
-})
-const loading = ref(0)
-const items = ref<
-  {
-    id: ControllerId
-    pointer: string
-  }[]
->([])
-
 const showCreate = ref(false)
+let createResolve: (done: boolean) => void = () => {}
 const createType = ref<'adb'>('adb')
 const createConfig = ref<Partial<AdbConfig>>({})
 const createAgentPath = computed({
@@ -90,37 +54,19 @@ const createParamProvided = computed(() => {
 const selectCallbackEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 const selectDeviceEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 
-async function realUpdate() {
-  loading.value += 1
-  const res: {
-    id: ControllerId
-    pointer: string
-  }[] = []
-  for (const [id, v] of Object.entries(await controller.dump())) {
-    res.push({
-      id: id as ControllerId,
-      pointer: v.pointer
-    })
-  }
-
-  if (
-    props.selectMode &&
-    props.controller &&
-    res.findIndex(x => x.id === props.controller) !== -1
-  ) {
-    emits('update:controller', null)
-  }
-  items.value = res
-  loading.value -= 1
-}
-
-function update() {
-  return triggerUpdate('controller')
+async function dump() {
+  return Object.keys(await controller.dump())
 }
 
 async function add() {
+  showCreate.value = true
+  return new Promise<boolean>(resolve => {
+    createResolve = resolve
+  })
+}
+
+async function create() {
   showCreate.value = false
-  loading.value += 1
   await controller.createAdb(
     {
       config: '{}',
@@ -128,36 +74,29 @@ async function add() {
     },
     createCallback.value!
   )
-  await update()
-  loading.value -= 1
+  createResolve(true)
 }
 
-async function remove(id: ControllerId) {
-  loading.value += 1
-  await controller.destroy(id)
-  await update()
-  loading.value -= 1
+function cancelCreate() {
+  showCreate.value = false
+  createResolve(false)
 }
 
-async function removeDirect(id: ControllerId) {
-  loading.value += 1
-  await controller.destroyDirect(id)
-  await update()
-  loading.value -= 1
+async function del(id: string, direct: boolean) {
+  if (direct) {
+    await controller.destroyDirect(id as ControllerId)
+  } else {
+    await controller.destroy(id as ControllerId)
+  }
 }
 
-function detail(id: ControllerId) {
-  dockerAddComponent(id, 'DebugControllerDetail')
+function alive(id: string) {
+  return !!handle.getController(id as ControllerId)
 }
 
-onMounted(() => {
-  registerUpdate('controller', realUpdate)
-  update()
-})
-
-onUnmounted(() => {
-  unregisterUpdate('controller', realUpdate)
-})
+function used(id: string) {
+  return Object.keys(handle.getController(id as ControllerId).used).length > 0
+}
 </script>
 
 <template>
@@ -185,7 +124,7 @@ onUnmounted(() => {
     <debug-device select-mode :config="value" @update:config="setValue"></debug-device>
   </debug-select>
 
-  <v-dialog v-model="showCreate" class="w-2/3">
+  <v-dialog v-model="showCreate" @update:model-value="cancelCreate" class="w-2/3">
     <v-card class="flex flex-col gap-2 p-4">
       <v-tabs v-model="createType" density="compact">
         <v-tab value="adb">Adb</v-tab>
@@ -214,54 +153,24 @@ onUnmounted(() => {
         </div>
       </div>
       <div class="flex gap-2">
-        <v-btn text="确认" color="primary" @click="add" :disabled="!createParamProvided"></v-btn>
-        <v-btn text="取消" @click="showCreate = false"></v-btn>
+        <v-btn text="确认" color="primary" @click="create" :disabled="!createParamProvided"></v-btn>
+        <v-btn text="取消" @click="cancelCreate"></v-btn>
       </div>
     </v-card>
   </v-dialog>
 
-  <debug-docker-card id="#controller" :closable="false" class="bg-blue-200">
+  <debug-handle-select
+    :select-mode="selectMode"
+    :handle="props.controller"
+    @update:handle="h => emits('update:controller', h as ControllerId | null)"
+    type="controller"
+    :dump="dump"
+    :add="add"
+    :del="del"
+    :alive="alive"
+    :used="used"
+    detail-card="DebugControllerDetail"
+  >
     <template #title> 控制器列表 </template>
-
-    <div class="flex gap-2">
-      <v-btn text="刷新" @click="update"></v-btn>
-      <v-btn text="添加" @click="showCreate = true"></v-btn>
-    </div>
-    <v-data-table
-      class="bg-white bg-opacity-50"
-      :headers="headers"
-      :loading="loading > 0"
-      :items="items"
-      density="compact"
-      :show-select="selectMode"
-      select-strategy="single"
-      :model-value="props.controller ? [props.controller] : ([] as ControllerId[])"
-      @update:model-value="
-        v => {
-          emits('update:controller', v.length > 0 ? v[0] : null)
-        }
-      "
-    >
-      <template v-slot:item.id="{ item }">
-        <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getController(item.id)">
-          {{ item.id }}
-        </v-btn>
-      </template>
-
-      <template v-slot:item.action="{ item }">
-        <template v-if="handle.getController(item.id)">
-          <v-btn
-            variant="text"
-            @click="remove(item.id)"
-            :disabled="Object.keys(handle.getController(item.id).used).length > 0"
-          >
-            删除
-          </v-btn>
-        </template>
-        <template v-else>
-          <v-btn variant="text" @click="removeDirect(item.id)"> 移除 </v-btn>
-        </template>
-      </template>
-    </v-data-table>
-  </debug-docker-card>
+  </debug-handle-select>
 </template>

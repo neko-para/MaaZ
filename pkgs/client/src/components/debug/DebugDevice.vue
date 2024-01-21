@@ -64,8 +64,8 @@ onUnmounted(() => {
     <template #title> 设备列表 </template>
 
     <div class="flex gap-2">
-      <v-btn text="扫描" @click="scan" :loading="loading > 0"></v-btn>
       <v-btn text="刷新" @click="update" :loading="loading > 0"></v-btn>
+      <v-btn text="扫描" @click="scan" :loading="loading > 0"></v-btn>
     </div>
     <v-expansion-panels :multiple="!selectMode">
       <v-expansion-panel v-for="cfg in configs" :key="cfg.address">
