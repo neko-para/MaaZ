@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { onMounted } from 'vue'
 import { ref } from 'vue'
-import { VTextarea } from 'vuetify/components'
+import { nextTick } from 'vue'
+import { onUnmounted } from 'vue'
+import { shallowRef } from 'vue'
+import { watch } from 'vue'
+
+import { type MonacoEditor, setupMonaco } from '@/plugins/monaco'
+import { format } from '@/plugins/prettier'
 
 const props = defineProps<{
   readonly?: boolean
@@ -10,59 +16,41 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   'update:json': [string]
+  blur: [string]
 }>()
 
-const editing = ref(false)
+const editorEl = ref<HTMLDivElement | null>(null)
+const editor = shallowRef<MonacoEditor | null>(null)
 
-const error = computed(() => {
-  try {
-    JSON.parse(props.json)
-    return false
-  } catch (_) {
-    return true
+watch(
+  () => props.readonly,
+  v => {
+    editor.value?.updateOptions({
+      readOnly: v
+    })
   }
+)
+
+onMounted(() => {
+  nextTick(async () => {
+    const code = await format(props.json)
+    editor.value = setupMonaco(editorEl.value!, code, !!props.readonly)
+    editor.value.onDidBlurEditorText(() => {
+      const code = editor.value?.getModel()?.getValue() ?? ''
+      emits('blur', code)
+    })
+    editor.value.onDidChangeModelContent(e => {
+      const code = editor.value?.getModel()?.getValue() ?? ''
+      emits('update:json', code)
+    })
+  })
 })
 
-function update() {
-  try {
-    // emits('update:json', JSON.stringify(JSON.parse(props.json), null, 2))
-  } catch (_) {}
-  editing.value = false
-}
-
-function acceptTab(e: KeyboardEvent) {
-  if (e.key == 'Tab' && e.target) {
-    const el = e.target as HTMLTextAreaElement
-    const val = el.value
-    const start = el.selectionStart
-    const end = el.selectionEnd
-
-    el.value = val.substring(0, start) + '\t' + val.substring(end)
-
-    el.selectionStart = el.selectionEnd = start + 1
-
-    e.preventDefault()
-  }
-}
+onUnmounted(() => {
+  editor.value?.dispose()
+})
 </script>
 
 <template>
-  <highlightjs
-    v-if="!editing"
-    @click="!readonly && (editing = true)"
-    language="json"
-    :code="json"
-  ></highlightjs>
-  <v-textarea
-    v-else
-    variant="solo"
-    auto-grow
-    autofocus
-    :error-messages="error ? 'syntax error' : undefined"
-    hide-details="auto"
-    :model-value="json"
-    @update:model-value="(v: string) => emits('update:json', v)"
-    @blur="update"
-    @keydown="acceptTab"
-  ></v-textarea>
+  <div ref="editorEl" class="h-80"></div>
 </template>

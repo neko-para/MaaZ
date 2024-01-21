@@ -63,8 +63,8 @@ function create() {
                   <v-text-field v-model="item.root" hide-details density="compact"></v-text-field>
                   <span> 配置 </span>
                   <debug-view-edit-json
-                    :json="JSON.stringify(pack.packs[idx].config, null, 2)"
-                    @update:json="
+                    :json="JSON.stringify(pack.packs[idx].config)"
+                    @blur="
                       v => {
                         try {
                           pack.packs[idx].config = JSON.parse(v)
