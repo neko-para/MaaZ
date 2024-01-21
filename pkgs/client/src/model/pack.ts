@@ -18,10 +18,19 @@ function usePack() {
     packs.push(..._sync())
   }
 
+  const add = (root: string, config: PackageConfig) => {
+    packs.push({
+      type: 'pack',
+      root,
+      config
+    })
+  }
+
   return {
     packs,
 
-    reinit
+    reinit,
+    add
   }
 }
 

@@ -36,19 +36,22 @@ onMounted(() => {
 <template>
   <v-app class="bg-gray-200">
     <v-app-bar>
-      <!-- <v-app-bar-nav-icon
+      <v-app-bar-nav-icon
         icon="mdi-menu"
         @click.stop="showDrawer = !showDrawer"
-      ></v-app-bar-nav-icon> -->
+      ></v-app-bar-nav-icon>
       <v-toolbar-title>maa-z</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn v-if="version" @click="disconnect"> 已连接 - {{ version }} </v-btn>
       <v-btn @click="gotoGithub"> Github </v-btn>
     </v-app-bar>
 
-    <!-- <v-navigation-drawer v-model="showDrawer">
-      <v-list> </v-list>
-    </v-navigation-drawer> -->
+    <v-navigation-drawer v-model="showDrawer" temporary>
+      <v-list>
+        <v-list-item link to="/pack"> 资源包 </v-list-item>
+        <v-list-item link to="/debug"> 调试 </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
     <v-dialog :model-value="!version" class="w-1/3" persistent>
       <v-card class="p-4">

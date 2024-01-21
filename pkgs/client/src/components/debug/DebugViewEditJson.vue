@@ -25,7 +25,7 @@ const error = computed(() => {
 
 function update() {
   try {
-    emits('update:json', JSON.stringify(JSON.parse(props.json), null, 2))
+    // emits('update:json', JSON.stringify(JSON.parse(props.json), null, 2))
   } catch (_) {}
   editing.value = false
 }

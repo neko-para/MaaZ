@@ -42,6 +42,7 @@ export type EntryConfig = {
 
 export type PackageConfig = {
   name: string
+  id: string
   controller?: ControllerConfig
   resource: Record<string, ResourceConfig>
   option?: Record<string, OptionConfig>
