@@ -4,7 +4,6 @@ export function sync<T extends Record<string, unknown> | unknown[]>(key: string,
   watch(
     data,
     v => {
-      console.log('update', key, v)
       localStorage.setItem(key, JSON.stringify(v))
     },
     {

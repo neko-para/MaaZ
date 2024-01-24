@@ -48,7 +48,7 @@ onMounted(() => {
 
     <v-navigation-drawer v-model="showDrawer" temporary>
       <v-list>
-        <v-list-item link to="/pack"> 资源包 </v-list-item>
+        <!-- <v-list-item link to="/pack"> 资源包 </v-list-item> -->
         <v-list-item link to="/debug"> 调试 </v-list-item>
       </v-list>
     </v-navigation-drawer>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import {
+  $controller,
   $instance,
   $resource,
   type ControllerId,
+  ControllerOption,
   type InstanceId,
   type InstanceTaskId,
   type ResourceId,
@@ -15,13 +17,16 @@ import { VAutocomplete, VBtn, VCard, VDataTable, VDialog, VTextField } from 'vue
 
 import { handle } from '@/model/handle'
 import { instance } from '@/model/instance'
+import { pack } from '@/model/pack'
+import { resource } from '@/model/resource'
 
 import DebugController from './DebugController.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
+import DebugPack from './DebugPack.vue'
 import DebugResource from './DebugResource.vue'
 import DebugSelect from './DebugSelect.vue'
 import DebugViewEditJson from './DebugViewEditJson.vue'
-import { dockerAddComponent } from './utils'
+import { dockerAddComponent, triggerUpdate } from './utils'
 
 const props = defineProps<{
   id: InstanceId
@@ -42,6 +47,7 @@ const showPostTask = ref(false)
 const task = ref('')
 const taskParam = ref('{}')
 const taskList = ref<string[]>([])
+const showPack = ref(false)
 
 const running = computed(() => {
   return (
@@ -107,6 +113,48 @@ async function updateInfo() {
   ctrlInited.value = await $instance.inited(props.id)
 }
 
+async function setup(id: string) {
+  showPack.value = false
+  const pak = pack.get(id)
+  if (!pak) {
+    return
+  }
+  if (pak.config.controller) {
+    const ci = pak.config.controller
+    if (ci.start) {
+      await $controller.setOptionS(
+        info.value.ctrlid!,
+        ControllerOption.DefaultAppPackageEntry,
+        ci.start
+      )
+    }
+    if (ci.stop) {
+      await $controller.setOptionS(info.value.ctrlid!, ControllerOption.DefaultAppPackage, ci.stop)
+    }
+    if (ci.long) {
+      await $controller.setOptionI(
+        info.value.ctrlid!,
+        ControllerOption.ScreenshotTargetLongSide,
+        ci.long
+      )
+    }
+    if (ci.short) {
+      await $controller.setOptionI(
+        info.value.ctrlid!,
+        ControllerOption.ScreenshotTargetLongSide,
+        ci.short
+      )
+    }
+  }
+  const loadAct = await $resource.postPath(info.value.resid!, pak.root)
+  const connAct = await $controller.postConnection(info.value.ctrlid!)
+  await Promise.all([
+    $resource.wait(info.value.resid!, loadAct),
+    $controller.wait(info.value.ctrlid!, connAct)
+  ])
+  await updateInfo()
+}
+
 async function selectTask() {
   showPostTask.value = true
   taskList.value = []
@@ -162,6 +210,10 @@ onMounted(() => {
     ></debug-controller>
   </debug-select>
 
+  <v-dialog v-model="showPack" class="w-1/2">
+    <debug-pack select-mode @packid="id => setup(id)"></debug-pack>
+  </v-dialog>
+
   <v-dialog v-model="showPostTask" class="w-1/2">
     <v-card class="flex flex-col gap-2 p-4">
       <div class="maa-simple-form">
@@ -189,6 +241,11 @@ onMounted(() => {
       <div class="flex gap-2">
         <v-btn text="绑定资源" @click="selectRes" :disabled="running"></v-btn>
         <v-btn text="绑定控制器" @click="selectCtrl" :disabled="running"></v-btn>
+        <v-btn
+          text="配置资源包"
+          @click="showPack = true"
+          :disabled="running || !info.resid || !info.ctrlid"
+        ></v-btn>
         <v-btn
           text="启动任务"
           @click="selectTask"

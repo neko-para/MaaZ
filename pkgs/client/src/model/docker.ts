@@ -7,6 +7,7 @@ import DebugControllerDetail from '@/components/debug/DebugControllerDetail.vue'
 import DebugDevice from '@/components/debug/DebugDevice.vue'
 import DebugInstance from '@/components/debug/DebugInstance.vue'
 import DebugInstanceDetail from '@/components/debug/DebugInstanceDetail.vue'
+import DebugPack from '@/components/debug/DebugPack.vue'
 import DebugResource from '@/components/debug/DebugResource.vue'
 import DebugResourceDetail from '@/components/debug/DebugResourceDetail.vue'
 
@@ -19,7 +20,8 @@ export const dockerComponentIndex = {
   DebugControllerDetail,
   DebugInstance,
   DebugInstanceDetail,
-  DebugDevice
+  DebugDevice,
+  DebugPack
 } as const
 
 export type DockerComponent = keyof typeof dockerComponentIndex
@@ -84,6 +86,14 @@ function useDocker() {
       {
         id: '#device',
         component: 'DebugDevice',
+        props: {}
+      },
+      false
+    )
+    add(
+      {
+        id: '#pack',
+        component: 'DebugPack',
         props: {}
       },
       false
