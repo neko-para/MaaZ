@@ -33,7 +33,10 @@ watch(
 
 onMounted(() => {
   nextTick(async () => {
-    const code = await format(props.json)
+    let code = props.json
+    try {
+      code = await format(props.json)
+    } catch (_) {}
     editor.value = setupMonaco(editorEl.value!, code, !!props.readonly)
     editor.value.onDidBlurEditorText(() => {
       const code = editor.value?.getModel()?.getValue() ?? ''
