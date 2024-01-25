@@ -45,6 +45,9 @@ function useCallback() {
 
   const add = async () => {
     const id = await $callback.add()
+    if (!id) {
+      return null
+    }
     callbacks[id] = {
       type: 'callback',
       used: {},

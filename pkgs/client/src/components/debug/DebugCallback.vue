@@ -29,6 +29,9 @@ async function dump() {
 
 async function add() {
   const id = await callback.add()
+  if (!id) {
+    return null
+  }
   listen(id)
   return id
 }

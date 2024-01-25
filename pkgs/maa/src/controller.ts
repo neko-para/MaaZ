@@ -24,7 +24,7 @@ async function createAdb(cfg: AdbConfig, agent_path: string, callback: APICallba
       callback
     })
   ).return as ControllerId
-  return id === '' ? id : null
+  return id === '' ? null : id
 }
 
 async function destroy(ctrl: ControllerId) {

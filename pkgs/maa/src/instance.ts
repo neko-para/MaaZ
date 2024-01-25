@@ -13,7 +13,7 @@ async function dump() {
 
 async function create(callback: APICallbackId) {
   const id = (await api.MaaCreate({ callback })).return as InstanceId
-  return id === '' ? id : null
+  return id === '' ? null : id
 }
 
 async function destroy(inst: InstanceId) {
