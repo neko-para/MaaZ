@@ -12,6 +12,7 @@ import { device } from './model/device'
 import { docker } from './model/docker'
 import { instance } from './model/instance'
 import { pack } from './model/pack'
+import { packinst } from './model/packinst'
 import { resource } from './model/resource'
 import './plugins/monaco'
 import router from './plugins/router'
@@ -25,7 +26,8 @@ callback.reinit()
 resource.reinit()
 controller.reinit()
 instance.reinit()
-pack.reinit()
 device.reinit()
+pack.reinit()
+packinst.reinit()
 
 createApp(App).use(router).use(i18n).use(vuetify).mount('#app')

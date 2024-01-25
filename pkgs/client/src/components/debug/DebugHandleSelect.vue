@@ -13,11 +13,11 @@ const props = defineProps<{
   handle?: string | null
   type: string
 
-  dump: () => Promise<string[]>
-  add: () => Promise<string | null>
-  del: (id: string, direct: boolean) => Promise<void>
-  alive: (id: string) => boolean
-  used: (id: string) => boolean
+  dump?: () => Promise<string[]>
+  add?: () => Promise<string | null>
+  del?: (id: string, direct: boolean) => Promise<void>
+  alive?: (id: string) => boolean
+  used?: (id: string) => boolean
   detailCard: DockerComponent
 }>()
 
@@ -46,19 +46,21 @@ const items = ref<
 
 async function realUpdate() {
   loading.value += 1
-  const handles: {
-    id: string
-  }[] = []
-  for (const id of await props.dump()) {
-    handles.push({
-      id: id
-    })
-  }
+  if (props.dump) {
+    const handles: {
+      id: string
+    }[] = []
+    for (const id of await props.dump()) {
+      handles.push({
+        id: id
+      })
+    }
 
-  if (props.selectMode && props.handle && handles.findIndex(x => x.id === props.handle) !== -1) {
-    emits('update:handle', null)
+    if (props.selectMode && props.handle && handles.findIndex(x => x.id === props.handle) !== -1) {
+      emits('update:handle', null)
+    }
+    items.value = handles
   }
-  items.value = handles
   loading.value -= 1
 }
 
@@ -68,23 +70,29 @@ function update() {
 
 async function doAdd() {
   loading.value += 1
-  if (await props.add()) {
-    await update()
+  if (props.add) {
+    if (await props.add()) {
+      await update()
+    }
   }
   loading.value -= 1
 }
 
 async function doDel(id: string) {
   loading.value += 1
-  await props.del(id, false)
-  await update()
+  if (props.del) {
+    await props.del(id, false)
+    await update()
+  }
   loading.value -= 1
 }
 
 async function doDelDirect(id: string) {
   loading.value += 1
-  await props.del(id, true)
-  await update()
+  if (props.del) {
+    await props.del(id, true)
+    await update()
+  }
   loading.value -= 1
 }
 
@@ -108,7 +116,7 @@ onUnmounted(() => {
 
     <div class="flex gap-2">
       <v-btn text="刷新" @click="update"></v-btn>
-      <v-btn text="添加" @click="doAdd"></v-btn>
+      <v-btn v-if="add" text="添加" @click="doAdd"></v-btn>
     </div>
     <v-data-table
       class="bg-white bg-opacity-50"
@@ -126,17 +134,24 @@ onUnmounted(() => {
       "
     >
       <template v-slot:item.id="{ item }">
-        <v-btn variant="text" @click="detail(item.id)" :disabled="!alive(item.id)">
+        <v-btn variant="text" @click="detail(item.id)" :disabled="alive && !alive(item.id)">
           {{ item.id }}
         </v-btn>
       </template>
       <template v-slot:item.action="{ item }">
-        <template v-if="alive(item.id)">
+        <template v-if="!alive || alive(item.id)">
           <slot name="action" :handle="item.id"></slot>
-          <v-btn variant="text" @click="doDel(item.id)" :disabled="used(item.id)"> 删除 </v-btn>
+          <v-btn
+            v-if="del"
+            variant="text"
+            @click="doDel(item.id)"
+            :disabled="used && used(item.id)"
+          >
+            删除
+          </v-btn>
         </template>
         <template v-else>
-          <v-btn variant="text" @click="doDelDirect(item.id)"> 移除 </v-btn>
+          <v-btn v-if="del" variant="text" @click="doDelDirect(item.id)"> 移除 </v-btn>
         </template>
       </template>
     </v-data-table>

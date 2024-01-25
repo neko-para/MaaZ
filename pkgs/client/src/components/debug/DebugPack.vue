@@ -21,11 +21,13 @@ import {
 import { controller } from '@/model/controller'
 import { instance } from '@/model/instance'
 import { pack } from '@/model/pack'
+import { packinst } from '@/model/packinst'
 import { resource } from '@/model/resource'
 
 import DebugViewEditJson from '../debug/DebugViewEditJson.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
 import { service } from './service'
+import { dockerAddComponent } from './utils'
 
 defineProps<{
   selectMode?: boolean
@@ -71,6 +73,8 @@ async function make(id: string) {
   await instance.bindRes(inst, res)
   await instance.bindCtrl(inst, ctrl)
 
+  const piid = packinst.create(id, inst)
+
   if (pak.config.controller) {
     const ci = pak.config.controller
     if (ci.start) {
@@ -86,9 +90,11 @@ async function make(id: string) {
       await $controller.setOptionI(ctrl, ControllerOption.ScreenshotTargetLongSide, ci.short)
     }
   }
-  const loadAct = await $resource.postPath(res, pak.root)
+  // const loadAct = await $resource.postPath(res, pak.root)
   const connAct = await $controller.postConnection(ctrl)
-  await Promise.all([$resource.wait(res, loadAct), $controller.wait(ctrl, connAct)])
+  await $controller.wait(ctrl, connAct)
+
+  dockerAddComponent(piid, 'DebugPackInstDetail')
 }
 
 function del(id: string) {

@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { callback } from './callback'
 import { controller } from './controller'
 import { instance } from './instance'
+import { packinst } from './packinst'
 import { resource } from './resource'
 
 function useHandle() {
@@ -29,12 +30,17 @@ function useHandle() {
     return instance.instances[id]
   }
 
+  const getPackInst = (id: string) => {
+    return packinst.packinsts[id]
+  }
+
   return {
     contain,
     getCallback,
     getResource,
     getController,
-    getInstance
+    getInstance,
+    getPackInst
   }
 }
 
