@@ -14,7 +14,7 @@ const props = defineProps<{
   type: string
 
   dump: () => Promise<string[]>
-  add: () => Promise<boolean>
+  add: () => Promise<string | null>
   del: (id: string, direct: boolean) => Promise<void>
   alive: (id: string) => boolean
   used: (id: string) => boolean
@@ -68,8 +68,9 @@ function update() {
 
 async function doAdd() {
   loading.value += 1
-  await props.add()
-  await update()
+  if (await props.add()) {
+    await update()
+  }
   loading.value -= 1
 }
 

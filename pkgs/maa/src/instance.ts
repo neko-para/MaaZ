@@ -12,7 +12,8 @@ async function dump() {
 }
 
 async function create(callback: APICallbackId) {
-  return (await api.MaaCreate({ callback })).return as InstanceId
+  const id = (await api.MaaCreate({ callback })).return as InstanceId
+  return id === '' ? id : null
 }
 
 async function destroy(inst: InstanceId) {

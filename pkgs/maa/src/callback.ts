@@ -10,7 +10,8 @@ async function dump() {
 }
 
 async function add() {
-  return (await cb.add()).id as APICallbackId
+  const id = (await cb.add()).id as APICallbackId
+  return id === '' ? id : null
 }
 
 async function del(id: APICallbackId) {

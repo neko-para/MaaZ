@@ -10,6 +10,7 @@ export type ControllerConfig = {
 
 export type ResourceConfig = {
   name: string
+  default?: true
   path?: string
   extends?: string
   diff?: DiffData[]

@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import {
+  $controller,
+  $instance,
+  $resource,
+  type ControllerId,
+  ControllerOption,
+  type InstanceId,
+  type ResourceId
+} from '@maaz/maa'
 import { ref } from 'vue'
 import {
   VBtn,
@@ -9,10 +18,14 @@ import {
   VTextField
 } from 'vuetify/components'
 
+import { controller } from '@/model/controller'
+import { instance } from '@/model/instance'
 import { pack } from '@/model/pack'
+import { resource } from '@/model/resource'
 
 import DebugViewEditJson from '../debug/DebugViewEditJson.vue'
 import DebugDockerCard from './DebugDockerCard.vue'
+import { service } from './service'
 
 defineProps<{
   selectMode?: boolean
@@ -33,6 +46,49 @@ function add() {
 function create() {
   pack.add(createRoot.value, JSON.parse(createPack.value))
   showCreate.value = false
+}
+
+async function make(id: string) {
+  const pak = pack.get(id)
+  if (!pak) {
+    return
+  }
+  const res = (await service['#resource'].create()) as ResourceId | null
+  if (!res) {
+    return
+  }
+  const ctrl = (await service['#controller'].create()) as ControllerId | null
+  if (!ctrl) {
+    await resource.destroy(res)
+    return
+  }
+  const inst = (await service['#instance'].create()) as InstanceId | null
+  if (!inst) {
+    await resource.destroy(res)
+    await controller.destroy(ctrl)
+    return
+  }
+  await instance.bindRes(inst, res)
+  await instance.bindCtrl(inst, ctrl)
+
+  if (pak.config.controller) {
+    const ci = pak.config.controller
+    if (ci.start) {
+      await $controller.setOptionS(ctrl, ControllerOption.DefaultAppPackageEntry, ci.start)
+    }
+    if (ci.stop) {
+      await $controller.setOptionS(ctrl, ControllerOption.DefaultAppPackage, ci.stop)
+    }
+    if (ci.long) {
+      await $controller.setOptionI(ctrl, ControllerOption.ScreenshotTargetLongSide, ci.long)
+    }
+    if (ci.short) {
+      await $controller.setOptionI(ctrl, ControllerOption.ScreenshotTargetLongSide, ci.short)
+    }
+  }
+  const loadAct = await $resource.postPath(res, pak.root)
+  const connAct = await $controller.postConnection(ctrl)
+  await Promise.all([$resource.wait(res, loadAct), $controller.wait(ctrl, connAct)])
 }
 
 function del(id: string) {
@@ -69,6 +125,7 @@ function del(id: string) {
             <div class="flex items-center gap-2">
               <span> {{ item.config.name }} - {{ item.config.id }} </span>
               <v-btn v-if="selectMode" @click.stop="emits('packid', item.config.id)"> 选择 </v-btn>
+              <v-btn @click.stop="make(item.config.id)"> 创建 </v-btn>
               <v-btn @click.stop="del(item.config.id)"> 删除 </v-btn>
             </div>
           </template>

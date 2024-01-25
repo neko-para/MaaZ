@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type APICallbackId, type AdbConfig, type ControllerId } from '@maaz/maa'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { VBtn, VCard, VDialog, VTab, VTabs, VTextField } from 'vuetify/components'
 
 import { globalConfig } from '@/model/config'
@@ -11,6 +11,7 @@ import DebugCallback from './DebugCallback.vue'
 import DebugDevice from './DebugDevice.vue'
 import DebugHandleSelect from './DebugHandleSelect.vue'
 import DebugSelect from './DebugSelect.vue'
+import { service } from './service'
 
 const props = withDefaults(
   defineProps<{
@@ -27,7 +28,7 @@ const emits = defineEmits<{
 }>()
 
 const showCreate = ref(false)
-let createResolve: (done: boolean) => void = () => {}
+let createResolve: (done: ControllerId | null) => void = () => {}
 const createType = ref<'adb'>('adb')
 const createConfig = ref<Partial<AdbConfig>>({})
 const createAgentPath = computed({
@@ -60,26 +61,26 @@ async function dump() {
 
 async function add() {
   showCreate.value = true
-  return new Promise<boolean>(resolve => {
+  return new Promise<ControllerId | null>(resolve => {
     createResolve = resolve
   })
 }
 
 async function create() {
   showCreate.value = false
-  await controller.createAdb(
+  const id = await controller.createAdb(
     {
       config: '{}',
       ...(createConfig.value as Omit<AdbConfig, 'config'>)
     },
     createCallback.value!
   )
-  createResolve(true)
+  createResolve(id)
 }
 
 function cancelCreate() {
   showCreate.value = false
-  createResolve(false)
+  createResolve(null)
 }
 
 async function del(id: string, direct: boolean) {
@@ -97,6 +98,12 @@ function alive(id: string) {
 function used(id: string) {
   return Object.keys(handle.getController(id as ControllerId).used).length > 0
 }
+
+onMounted(() => {
+  service['#controller'] = {
+    create: add
+  }
+})
 </script>
 
 <template>

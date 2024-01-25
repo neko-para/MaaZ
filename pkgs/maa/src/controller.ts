@@ -17,13 +17,14 @@ async function dump() {
 }
 
 async function createAdb(cfg: AdbConfig, agent_path: string, callback: APICallbackId) {
-  return (
+  const id = (
     await api.MaaAdbControllerCreateV2({
       ...cfg,
       agent_path,
       callback
     })
   ).return as ControllerId
+  return id === '' ? id : null
 }
 
 async function destroy(ctrl: ControllerId) {

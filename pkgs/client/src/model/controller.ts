@@ -36,6 +36,9 @@ function useController() {
 
   const createAdb = async (cfg: AdbConfig, cbid: APICallbackId) => {
     const id = await $controller.createAdb(cfg, globalConfig.config.agent_path ?? '', cbid)
+    if (!id) {
+      return null
+    }
     handle.getCallback(cbid).used[id] = true
     controllers[id] = {
       type: 'controller',

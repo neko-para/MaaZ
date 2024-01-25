@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import type { APICallbackId, InstanceId } from '@maaz/maa'
-import { computed, onMounted, ref } from 'vue'
-import { onUnmounted } from 'vue'
-import { VBtn, VDataTable } from 'vuetify/components'
+import { onMounted, ref } from 'vue'
+import { VBtn, VCard, VDialog } from 'vuetify/components'
 
 import { handle } from '@/model/handle'
 import { instance } from '@/model/instance'
 
 import DebugCallback from './DebugCallback.vue'
-import DebugDockerCard from './DebugDockerCard.vue'
+import DebugHandleSelect from './DebugHandleSelect.vue'
 import DebugSelect from './DebugSelect.vue'
-import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
+import { service } from './service'
 
 const props = withDefaults(
   defineProps<{
     selectMode?: boolean
-    instance?: InstanceId
+    instance?: InstanceId | null
   }>(),
   {
     selectMode: false
@@ -23,91 +22,57 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-  'update:instance': [InstanceId | undefined]
+  'update:instance': [InstanceId | null]
 }>()
 
-const headers = computed(() => {
-  return [
-    {
-      title: 'ID',
-      key: 'id'
-    },
-    {
-      title: 'Addr',
-      key: 'pointer'
-    },
-    {
-      title: 'Action',
-      key: 'action'
-    }
-  ]
-})
-const loading = ref(0)
-const items = ref<
-  {
-    id: InstanceId
-    pointer: string
-  }[]
->([])
+const showCreate = ref(false)
+let createResolve: (done: InstanceId | null) => void = () => {}
+const createCallback = ref<APICallbackId | null>(null)
 
 const selectCallbackEl = ref<InstanceType<typeof DebugSelect> | null>(null)
 
-async function realUpdate() {
-  loading.value += 1
-  const res: {
-    id: InstanceId
-    pointer: string
-  }[] = []
-  for (const [id, v] of Object.entries(await instance.dump())) {
-    res.push({
-      id: id as InstanceId,
-      pointer: v.pointer
-    })
+async function dump() {
+  return Object.keys(await instance.dump())
+}
+
+async function add() {
+  showCreate.value = true
+  return new Promise<InstanceId | null>(resolve => {
+    createResolve = resolve
+  })
+}
+
+async function create() {
+  showCreate.value = false
+  const id = await instance.create(createCallback.value!)
+  createResolve(id)
+}
+
+function cancelCreate() {
+  showCreate.value = false
+  createResolve(null)
+}
+
+async function del(id: string, direct: boolean) {
+  if (direct) {
+    await instance.destroyDirect(id as InstanceId)
+  } else {
+    await instance.destroy(id as InstanceId)
   }
-
-  if (props.selectMode && props.instance && res.findIndex(x => x.id === props.instance) !== -1) {
-    emits('update:instance', undefined)
-  }
-  items.value = res
-  loading.value -= 1
 }
 
-function update() {
-  return triggerUpdate('instance')
+function alive(id: string) {
+  return !!handle.getInstance(id as InstanceId)
 }
 
-async function add(id: APICallbackId) {
-  loading.value += 1
-  await instance.create(id)
-  await update()
-  loading.value -= 1
-}
-
-async function remove(id: InstanceId) {
-  loading.value += 1
-  await instance.destroy(id)
-  await update()
-  loading.value -= 1
-}
-
-async function removeDirect(id: InstanceId) {
-  loading.value += 1
-  await instance.destroyDirect(id)
-  await update()
-  loading.value -= 1
-}
-
-function detail(id: InstanceId) {
-  dockerAddComponent(id, 'DebugInstanceDetail')
+function used(id: string) {
+  return Object.keys(handle.getInstance(id as InstanceId).used).length > 0
 }
 
 onMounted(() => {
-  registerUpdate('instance', realUpdate)
-  update()
-})
-
-onUnmounted(() => {
-  unregisterUpdate('instance', realUpdate)
+  service['#instance'] = {
+    create: add
+  }
 })
 </script>
 
@@ -115,51 +80,39 @@ onUnmounted(() => {
   <debug-select
     ref="selectCallbackEl"
     v-slot="{ value, setValue }"
-    @selected="id => add(id as APICallbackId)"
+    @selected="id => (createCallback = id)"
   >
-    <debug-callback
-      select-mode
-      :callback="value as APICallbackId | null"
-      @update:callback="setValue"
-    ></debug-callback>
+    <debug-callback select-mode :callback="value" @update:callback="setValue"></debug-callback>
   </debug-select>
 
-  <debug-docker-card id="#instance" :closable="false" class="bg-blue-200">
+  <v-dialog :model-value="showCreate" class="w-2/3" @update:model-value="cancelCreate">
+    <v-card class="flex flex-col gap-2 p-4">
+      <div class="maa-simple-form p-4">
+        <span> 回调 </span>
+        <div class="flex items-center gap-2">
+          <v-btn @click="selectCallbackEl?.trigger()"> 选择回调 </v-btn>
+          <span> {{ createCallback }} </span>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <v-btn text="确认" color="primary" @click="create" :disabled="!createCallback"></v-btn>
+        <v-btn text="取消" @click="cancelCreate"></v-btn>
+      </div>
+    </v-card>
+  </v-dialog>
+
+  <debug-handle-select
+    :select-mode="selectMode"
+    :handle="props.instance"
+    @update:handle="h => emits('update:instance', h as InstanceId | null)"
+    type="instance"
+    :dump="dump"
+    :add="add"
+    :del="del"
+    :alive="alive"
+    :used="used"
+    detail-card="DebugInstanceDetail"
+  >
     <template #title> 实例列表 </template>
-
-    <div class="flex gap-2">
-      <v-btn text="刷新" @click="update"></v-btn>
-      <v-btn text="添加" @click="selectCallbackEl?.trigger()"></v-btn>
-    </div>
-    <v-data-table
-      class="bg-white bg-opacity-50"
-      :headers="headers"
-      :loading="loading > 0"
-      :items="items"
-      density="compact"
-      :show-select="selectMode"
-      select-strategy="single"
-      :model-value="props.instance ? [props.instance] : ([] as InstanceId[])"
-      @update:model-value="
-        v => {
-          emits('update:instance', v.length > 0 ? v[0] : undefined)
-        }
-      "
-    >
-      <template v-slot:item.id="{ item }">
-        <v-btn variant="text" @click="detail(item.id)" :disabled="!handle.getInstance(item.id)">
-          {{ item.id }}
-        </v-btn>
-      </template>
-
-      <template v-slot:item.action="{ item }">
-        <template v-if="handle.getInstance(item.id)">
-          <v-btn variant="text" @click="remove(item.id)"> 删除 </v-btn>
-        </template>
-        <template v-else>
-          <v-btn variant="text" @click="removeDirect(item.id)"> 移除 </v-btn>
-        </template>
-      </template>
-    </v-data-table>
-  </debug-docker-card>
+  </debug-handle-select>
 </template>

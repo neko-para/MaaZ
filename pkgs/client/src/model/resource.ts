@@ -34,6 +34,9 @@ function useResource() {
 
   const create = async (cbid: APICallbackId) => {
     const id = await $resource.create(cbid)
+    if (!id) {
+      return null
+    }
     handle.getCallback(cbid).used[id] = true
     resources[id] = {
       type: 'resource',

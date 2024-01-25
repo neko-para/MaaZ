@@ -1,4 +1,4 @@
-import type { PackageConfig } from '@maaz/maa'
+import type { ControllerId, PackageConfig, ResourceId } from '@maaz/maa'
 import { reactive } from 'vue'
 
 import { sync } from './storage'

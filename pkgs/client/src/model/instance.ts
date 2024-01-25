@@ -22,6 +22,7 @@ type TaskInfo = {
 
 export interface MaaInstanceInfo {
   type: 'instance'
+  used: Record<string, true>
   cbid: APICallbackId
   resid: ResourceId | null
   ctrlid: ControllerId | null
@@ -65,9 +66,13 @@ function useInstance() {
 
   const create = async (cbid: APICallbackId) => {
     const id = await $instance.create(cbid)
+    if (!id) {
+      return null
+    }
     handle.getCallback(cbid).used[id] = true
     instances[id] = {
       type: 'instance',
+      used: {},
       cbid,
       resid: null,
       ctrlid: null,

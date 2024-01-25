@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { APICallbackId } from '@maaz/maa'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { VBtn, VDataTable } from 'vuetify/components'
+import { onMounted } from 'vue'
+import { VBtn } from 'vuetify/components'
 
 import { callback } from '@/model/callback'
 import { handle } from '@/model/handle'
 
-import DebugDockerCard from './DebugDockerCard.vue'
 import DebugHandleSelect from './DebugHandleSelect.vue'
-import { dockerAddComponent, registerUpdate, triggerUpdate, unregisterUpdate } from './utils'
+import { service } from './service'
 
 const props = withDefaults(
   defineProps<{
@@ -31,7 +30,7 @@ async function dump() {
 async function add() {
   const id = await callback.add()
   listen(id)
-  return true
+  return id
 }
 
 async function del(id: string, direct: boolean) {
@@ -59,6 +58,12 @@ function listen(id: APICallbackId) {
 function stop(id: APICallbackId) {
   callback.stop(id)
 }
+
+onMounted(() => {
+  service['#callback'] = {
+    create: add
+  }
+})
 </script>
 
 <template>
