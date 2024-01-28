@@ -10,6 +10,7 @@
   "resource": {
     "official": {
       "name": "大陆",
+      "default": true,
       "path": "."
     }
   },

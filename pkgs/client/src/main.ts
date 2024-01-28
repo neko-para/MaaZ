@@ -18,16 +18,19 @@ import './plugins/monaco'
 import router from './plugins/router'
 import vuetify from './plugins/vuetify'
 
-api.MaaToolkitInit()
+async function init() {
+  globalConfig.init()
+  docker.reinit()
+  await api.MaaToolkitInit()
+  await callback.reinit()
+  await resource.reinit()
+  await controller.reinit()
+  await instance.reinit()
+  await device.reinit()
+  pack.reinit()
+  packinst.reinit()
+}
 
-globalConfig.init()
-docker.reinit()
-callback.reinit()
-resource.reinit()
-controller.reinit()
-instance.reinit()
-device.reinit()
-pack.reinit()
-packinst.reinit()
+init()
 
 createApp(App).use(router).use(i18n).use(vuetify).mount('#app')

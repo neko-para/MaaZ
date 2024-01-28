@@ -11,7 +11,7 @@ export interface PackInstInfo {
   type: 'packinst'
   used: Record<string, true>
   pack: string
-  instid: InstanceId
+  instid: InstanceId | null
 }
 
 function usePackInst() {
@@ -23,6 +23,9 @@ function usePackInst() {
     const storedInfo = _sync()
     for (const key in storedInfo) {
       packinsts[key] = storedInfo[key]
+      if (packinsts[key].instid && !handle.getInstance(packinsts[key].instid!)) {
+        packinsts[key].instid = null
+      }
     }
   }
 
@@ -41,7 +44,9 @@ function usePackInst() {
   const destroy = (id: string) => {
     const info = packinsts[id]
     dockerDelComponent(id)
-    delete handle.getInstance(info.instid).used[id]
+    if (info.instid) {
+      delete handle.getInstance(info.instid).used[id]
+    }
     delete packinsts[id]
   }
 
