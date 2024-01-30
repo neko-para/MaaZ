@@ -1,0 +1,9 @@
+{
+  "name": "@maaz/base",
+  "main": "src/index.ts",
+  "devDependencies": {
+    "@maaz/maa": "workspace:*",
+    "@maaz/schema": "workspace:*",
+    "@vue/tsconfig": "^0.5.1"
+  }
+}

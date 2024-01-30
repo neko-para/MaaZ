@@ -12,6 +12,18 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0(prettier@3.2.4)
 
+  pkgs/base:
+    devDependencies:
+      '@maaz/maa':
+        specifier: workspace:*
+        version: link:../maa
+      '@maaz/schema':
+        specifier: workspace:*
+        version: link:../schema
+      '@vue/tsconfig':
+        specifier: ^0.5.1
+        version: 0.5.1
+
   pkgs/client:
     devDependencies:
       '@highlightjs/vue-plugin':
