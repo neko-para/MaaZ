@@ -37,7 +37,11 @@ function openInstance() {
   }
 }
 
-function createInstance() {}
+async function createInstance() {
+  loading.value += 1
+  await packinst.setup(props.id)
+  loading.value -= 1
+}
 
 async function loadResource(res: ResourceConfig) {
   if (!instInfo.value) {

@@ -55,46 +55,10 @@ async function make(id: string) {
   if (!pak) {
     return
   }
-  const res = (await service['#resource'].create()) as ResourceId | null
-  if (!res) {
-    return
+  const piid = packinst.create(id)
+  if (await packinst.setup(piid)) {
+    dockerAddComponent(piid, 'DebugPackInstDetail')
   }
-  const ctrl = (await service['#controller'].create()) as ControllerId | null
-  if (!ctrl) {
-    await resource.destroy(res)
-    return
-  }
-  const inst = (await service['#instance'].create()) as InstanceId | null
-  if (!inst) {
-    await resource.destroy(res)
-    await controller.destroy(ctrl)
-    return
-  }
-  await instance.bindRes(inst, res)
-  await instance.bindCtrl(inst, ctrl)
-
-  const piid = packinst.create(id, inst)
-
-  if (pak.config.controller) {
-    const ci = pak.config.controller
-    if (ci.start) {
-      await $controller.setOptionS(ctrl, ControllerOption.DefaultAppPackageEntry, ci.start)
-    }
-    if (ci.stop) {
-      await $controller.setOptionS(ctrl, ControllerOption.DefaultAppPackage, ci.stop)
-    }
-    if (ci.long) {
-      await $controller.setOptionI(ctrl, ControllerOption.ScreenshotTargetLongSide, ci.long)
-    }
-    if (ci.short) {
-      await $controller.setOptionI(ctrl, ControllerOption.ScreenshotTargetLongSide, ci.short)
-    }
-  }
-  // const loadAct = await $resource.postPath(res, pak.root)
-  const connAct = await $controller.postConnection(ctrl)
-  await $controller.wait(ctrl, connAct)
-
-  dockerAddComponent(piid, 'DebugPackInstDetail')
 }
 
 function del(id: string) {
