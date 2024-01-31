@@ -1,3 +1,4 @@
+import { notify } from '../utils'
 import { deserializeMap, serializeMap } from '../utils/serialize'
 import type { GeneralHandle, Handle, HandleInfo } from './type'
 
@@ -12,6 +13,7 @@ export function add(handle: GeneralHandle, type: string) {
       refering: new Map(),
       refered: new Map()
     }
+    notify.post('HandleIndexUpdate', { handles: [handle] })
   }
 }
 
@@ -23,17 +25,15 @@ export function get(handle: GeneralHandle) {
   }
 }
 
-export function del(handle: GeneralHandle, recursive = false) {
+export function del(handle: GeneralHandle) {
   if (refered(handle)) {
     return false
   }
   for (const [child, count] of get(handle)!.refering.entries()) {
     delRef(handle, child, count)
-    if (recursive && !refered(child)) {
-      del(child, true)
-    }
   }
   delete data[handle]
+  notify.post('HandleIndexUpdate', { handles: [handle] })
   return true
 }
 
@@ -66,6 +66,7 @@ export function addRef(parent: GeneralHandle, child: GeneralHandle, count = 1) {
   const cnt = pi.refering.get(child) ?? 0
   pi.refering.set(child, cnt + count)
   ci.refered.set(parent, cnt + count)
+  notify.post('HandleIndexUpdate', { handles: [parent, child] })
   return true
 }
 
@@ -89,6 +90,7 @@ export function delRef(parent: GeneralHandle, child: GeneralHandle, count = 1) {
     pi.refering.set(child, cnt - count)
     ci.refered.set(parent, cnt - count)
   }
+  notify.post('HandleIndexUpdate', { handles: [parent, child] })
   return true
 }
 
@@ -107,8 +109,12 @@ export function serialize() {
 export function deserialize(from: string) {
   try {
     const newData = JSON.parse(from)
-    for (const k in data) {
+    const olds = Object.keys(data)
+    for (const k of olds) {
       delete data[k]
+    }
+    if (olds.length) {
+      notify.post('HandleIndexUpdate', { handles: olds })
     }
     for (const [k, v] of Object.entries(newData)) {
       data[k] = {
@@ -116,6 +122,9 @@ export function deserialize(from: string) {
         refering: deserializeMap((v as any).refering),
         refered: deserializeMap((v as any).refered)
       }
+    }
+    if (newData.length) {
+      notify.post('HandleIndexUpdate', { handles: Object.keys(data) })
     }
     return true
   } catch (err) {
