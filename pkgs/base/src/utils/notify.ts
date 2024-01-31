@@ -1,4 +1,4 @@
-import type { GeneralHandle } from '../handle/type'
+import type { GeneralHandle } from './handle'
 
 export type NotifyEventArg = {
   HandleIndexUpdate: { handles: GeneralHandle[] }

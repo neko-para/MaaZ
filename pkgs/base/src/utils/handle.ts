@@ -1,6 +1,13 @@
-import { notify } from '../utils'
-import { deserializeMap, serializeMap } from '../utils/serialize'
-import type { GeneralHandle, Handle, HandleInfo } from './type'
+import { norm, notify } from '.'
+
+export type GeneralHandle = string
+export type Handle<T extends string> = GeneralHandle & { __kind: T }
+
+export interface HandleInfo {
+  type: string
+  refering: Map<GeneralHandle, number>
+  refered: Map<GeneralHandle, number>
+}
 
 const data: Record<GeneralHandle, HandleInfo> = {}
 
@@ -99,8 +106,8 @@ export function serialize() {
   for (const [k, v] of Object.entries(data)) {
     ret[k] = {
       type: v.type,
-      refering: serializeMap(v.refering),
-      refered: serializeMap(v.refered)
+      refering: norm.normMap(v.refering),
+      refered: norm.normMap(v.refered)
     }
   }
   return JSON.stringify(ret)
@@ -119,8 +126,8 @@ export function deserialize(from: string) {
     for (const [k, v] of Object.entries(newData)) {
       data[k] = {
         type: (v as any).type,
-        refering: deserializeMap((v as any).refering),
-        refered: deserializeMap((v as any).refered)
+        refering: norm.denormMap((v as any).refering),
+        refered: norm.denormMap((v as any).refered)
       }
     }
     if (newData.length) {
