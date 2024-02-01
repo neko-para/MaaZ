@@ -35,14 +35,9 @@ function popNotify() {
   }
 }
 
-const triggerNotify = postpone(pushNotify, popNotify)
+export const triggerNotify = postpone(pushNotify, popNotify)
 
-export function add(
-  handle: GeneralHandle,
-  type: string,
-  data?: unknown,
-  temp?: unknown
-): HandleInfo | null {
+export function add(handle: GeneralHandle, type: string, data?: unknown): HandleInfo | null {
   if (handle in infos) {
     return null
   }
@@ -51,8 +46,7 @@ export function add(
     type,
     refering: new Map(),
     refered: new Map(),
-    data,
-    temp
+    data
   }
   return infos[handle]
 }
