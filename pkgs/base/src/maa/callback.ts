@@ -21,8 +21,11 @@ export interface CallbackInfoTemp {
   state: {
     running: boolean
     pulling: boolean
+    resolve: () => void
   }
 }
+
+export type CallbackInfo = handle.HandleInfo<CallbackInfoData, CallbackInfoTemp>
 
 export async function sync() {
   try {
@@ -59,7 +62,8 @@ export async function make() {
     const temp: CallbackInfoTemp = {
       state: {
         running: true,
-        pulling: false
+        pulling: false,
+        resolve: () => {}
       }
     }
     info.temp = temp
@@ -68,6 +72,7 @@ export async function make() {
       try {
         const ids = await $callback.pull(hdl)
         if (!temp.state.running) {
+          temp.state.resolve()
           return
         }
         await Promise.all(
@@ -86,6 +91,8 @@ export async function make() {
         temp.state.pulling = false
         if (temp.state.running) {
           setTimeout(puller, 0)
+        } else {
+          temp.state.resolve()
         }
       } catch (err) {
         setTimeout(puller, 5000)
@@ -93,6 +100,29 @@ export async function make() {
     }
     puller()
     return hdl as GeneralHandle as CallbackHandle
+  } catch (err) {
+    return false
+  }
+}
+
+export async function stop(h: CallbackHandle): Promise<boolean> {
+  try {
+    const info = handle.get(h) as CallbackInfo | null
+    if (!info) {
+      return false
+    }
+    if (!info.temp) {
+      return false
+    }
+    if (!info.temp.state.running) {
+      return false
+    }
+    info.temp.state.running = false
+    return new Promise(resolve => {
+      info.temp!.state.resolve = () => {
+        resolve(true)
+      }
+    })
   } catch (err) {
     return false
   }

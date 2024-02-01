@@ -3,14 +3,14 @@ import { norm, notify, postpone } from '.'
 export type GeneralHandle = string
 export type Handle<T extends string> = GeneralHandle & { __kind: T }
 
-export interface HandleInfo {
+export interface HandleInfo<Data = unknown, Temp = unknown> {
   type: string
   refering: Map<GeneralHandle, number>
   refered: Map<GeneralHandle, number>
-  data?: unknown
+  data?: Data
 
   invalid?: boolean
-  temp?: unknown
+  temp?: Temp
 }
 
 interface HandleInfoNorm {
