@@ -9,5 +9,6 @@
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
 
+  "parser": "babel-ts",
   "plugins": ["@trivago/prettier-plugin-sort-imports"]
 }

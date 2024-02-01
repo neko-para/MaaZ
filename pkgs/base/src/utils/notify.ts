@@ -1,7 +1,7 @@
 import type { GeneralHandle } from './handle'
 
 export type NotifyEventArg = {
-  HandleIndexUpdate: { handles: GeneralHandle[] }
+  HandleIndexUpdate: {}
 }
 
 export type NotifyEvent = keyof NotifyEventArg
